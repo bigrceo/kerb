@@ -1,6 +1,6 @@
 "use client";
 
-import { createConfig, http } from "wagmi";
+import { createConfig, fallback, http } from "wagmi";
 import { defineChain } from "viem";
 import { injected } from "wagmi/connectors";
 import { DESK_CHAIN } from "./chain";
@@ -17,6 +17,8 @@ export const deskChain = defineChain({
 export const wagmiConfig = createConfig({
   chains: [deskChain],
   connectors: [injected({ shimDisconnect: true })],
-  transports: { [deskChain.id]: http(DESK_CHAIN.readRpc) } as Record<number, ReturnType<typeof http>>,
+  // The chain's own RPC first: it serves event logs from any block, which the public mirror refuses
+  // without an archive token. The mirror takes over if the official one rate-limits.
+  transports: { [deskChain.id]: fallback([http(DESK_CHAIN.rpc), http(DESK_CHAIN.readRpc)]) } as Record<number, ReturnType<typeof fallback>>,
   ssr: true,
 });
