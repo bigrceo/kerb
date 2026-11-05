@@ -6,3 +6,4 @@ contracts/cache
 contracts/broadcast
 *.tsbuildinfo
 .DS_Store
+scripts/.last-fill
