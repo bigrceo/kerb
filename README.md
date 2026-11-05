@@ -10,9 +10,10 @@ Sell a whole bag to one buyer at a price you set, or bid for someone's bag. Sett
 
 | Network | Desk | Demo coin |
 | --- | --- | --- |
+| Robinhood Chain (4663) | `0x87D17826A3178fBc151EC460AA6dA440d6e7Cd43` (block 107080602, tx `0xe2a9ff62…d196`, source verified exact match on Sourcify) | none |
 | Robinhood Chain Testnet (46630) | `0x87D17826A3178fBc151EC460AA6dA440d6e7Cd43` | KDEMO `0x747fAcbB5497869605a0BA9F635b175A3f66ED45` |
 
-Mainnet: not deployed (needs ETH on 4663). Deploy then point the front:
+Same address on both chains (same deployer, nonce 0). The front defaults to mainnet; `NEXT_PUBLIC_DESK_CHAIN=46630` points it at the testnet desk. To redeploy:
 
 ```
 cd contracts && PRIVATE_KEY=… TREASURY=… forge script script/Deploy.s.sol --tc Deploy --rpc-url https://rpc.mainnet.chain.robinhood.com --broadcast

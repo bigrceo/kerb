@@ -237,15 +237,6 @@ export function Header() {
           </div>
         </div>
       </nav>
-      {ON_TESTNET && path !== "/" && (
-        <div className="tbanner">
-          <p className="wrap py-2 text-xs text-dim">
-            <span className="label text-accent mr-2">Testnet desk</span>
-            Offers settle on Robinhood Chain Testnet ({DESK_CHAIN.id}) until the desk is on mainnet. Prices and pools are
-            read live from mainnet.
-          </p>
-        </div>
-      )}
     </>
   );
 }

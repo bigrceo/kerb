@@ -17,6 +17,7 @@ OTC desk for Robinhood Chain. Sell your bag to one buyer, or bid for someone's. 
 6. Fees: 0.3% paid by the taker. Makers pay nothing.
 
 ## Before going live
-- Deploy Desk on mainnet 4663 (≈0.002 ETH gas), set env, redeploy front.
+- ~~Deploy Desk on mainnet 4663~~ done 2026-11-05: 0x87D17826A3178fBc151EC460AA6dA440d6e7Cd43, 0.0000358 ETH gas, verified on Sourcify.
+- Film one real mainnet fill (needs a second wallet: the contract refuses self-fills).
 - Launch $KERB, set NEXT_PUBLIC_KERB_TOKEN.
 - Buy kerb.trade, claim @kerbtrade.

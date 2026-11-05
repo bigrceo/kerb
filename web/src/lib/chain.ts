@@ -3,8 +3,8 @@
  *
  *  - MARKET: Robinhood Chain mainnet (4663). Prices, pools and the sale
  *    simulator always read the real chain.
- *  - DESK: wherever the Desk contract lives. Until it is on mainnet it runs on
- *    the Robinhood Chain testnet (46630), and the site says so on every page.
+ *  - DESK: where the Desk contract lives. Mainnet by default; set
+ *    NEXT_PUBLIC_DESK_CHAIN=46630 to run the site against the testnet desk.
  */
 export const MAINNET = {
   id: 4663,
@@ -22,11 +22,12 @@ export const TESTNET = {
   explorer: "https://explorer.testnet.chain.robinhood.com",
 } as const;
 
-const deskChainId = Number(process.env.NEXT_PUBLIC_DESK_CHAIN ?? TESTNET.id);
+const deskChainId = Number(process.env.NEXT_PUBLIC_DESK_CHAIN ?? MAINNET.id);
 export const DESK_CHAIN = deskChainId === MAINNET.id ? MAINNET : TESTNET;
 export const DESK = (process.env.NEXT_PUBLIC_DESK ?? "0x87D17826A3178fBc151EC460AA6dA440d6e7Cd43") as `0x${string}`;
+/** The desk has the same address on mainnet and testnet (same deployer, nonce 0). */
 /** Block the desk was deployed at, so history scans start there. */
-export const DESK_FROM_BLOCK = BigInt(process.env.NEXT_PUBLIC_DESK_FROM_BLOCK ?? "147910000");
+export const DESK_FROM_BLOCK = BigInt(process.env.NEXT_PUBLIC_DESK_FROM_BLOCK ?? (deskChainId === MAINNET.id ? "107080602" : "147910000"));
 export const ON_TESTNET = DESK_CHAIN.id === TESTNET.id;
 /** A plain ERC-20 on the testnet desk, so every flow can be tried end to end. */
 export const DEMO_COIN = "0x747fAcbB5497869605a0BA9F635b175A3f66ED45" as const;

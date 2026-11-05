@@ -90,7 +90,6 @@ nav#nav.mopen .mlist > div { padding: 6px 18px 18px; }
 .mlist a { display: flex; justify-content: space-between; padding: 12px 0; font-size: 20px; border-bottom: 1px solid rgba(255,255,255,.06); }
 .mlist a span { color: var(--color-dim); }
 main { padding-top: 84px; }
-.tbanner { position: relative; z-index: 1; margin-top: 84px; margin-bottom: -84px; }
 
 /* Motion: the hero rises on load, the rest reveals as it scrolls in, staggered. */
 @keyframes rise { from { opacity: 0; filter: blur(6px); transform: translateY(12px); } to { opacity: 1; filter: none; transform: none; } }
