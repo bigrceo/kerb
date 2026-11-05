@@ -5,8 +5,8 @@
 export const BRAND = {
   name: "Kerb",
   ticker: "KERB",
-  domain: "kerb.trade",
-  url: "https://kerb.trade",
+  domain: "kerbtrade.xyz",
+  url: "https://kerbtrade.xyz",
   x: "https://x.com/kerbtrade",
   tagline: "Trade the bag off the chart.",
   pitch:

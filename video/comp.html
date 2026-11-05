@@ -132,7 +132,7 @@ function endcard(t) {
       <div style="width:${130 * m}px;height:${130 * m}px;margin:0 auto">${MARK}</div>
       <div style="font-size:150px;font-weight:800;letter-spacing:-.06em;margin-top:6px">${words("Kerb", t, 23.9)}</div>
       <div style="font-size:44px;color:#9b9a8c;font-weight:500;letter-spacing:-.02em;margin-top:4px">${words("Trade the bag off the chart.", t, 24.3, .07)}</div>
-      <div class="eyebrow" style="margin-top:44px;opacity:${ease(prog(t, 25, 25.6))}">kerb.trade &nbsp;·&nbsp; $KERB &nbsp;·&nbsp; Live on Robinhood Chain</div>
+      <div class="eyebrow" style="margin-top:44px;opacity:${ease(prog(t, 25, 25.6))}">kerbtrade.xyz &nbsp;·&nbsp; $KERB &nbsp;·&nbsp; Live on Robinhood Chain</div>
     </div>`;
 }
 
@@ -142,23 +142,23 @@ window.render = (t) => {
   // Scene 2: the site.
   if (t > 3.6 && t < 7.9) {
     h += `<div class="line" style="top:${40 - 0}px;font-size:40px;font-weight:600;opacity:${env(t, 3.8, 7.6, .5, .4)}">${words("Meet Kerb.", t, 3.9)}</div>`;
-    h += win(t, 3.7, 7.8, "hero", "kerb.trade", [[3.7, .92, 720, 450], [7.8, 1.06, 720, 380]]);
+    h += win(t, 3.7, 7.8, "hero", "kerbtrade.xyz", [[3.7, .92, 720, 450], [7.8, 1.06, 720, 380]]);
   }
   // Scene 3: the simulator, real numbers for $50K of NOVAAI.
   if (t > 7.6 && t < 12.6) {
-    h += win(t, 7.7, 12.5, "markets", "kerb.trade/markets", [[7.7, 1, 720, 450], [9, 1, 720, 450], [10, 1.55, 560, 520], [12.5, 1.6, 600, 540]],
+    h += win(t, 7.7, 12.5, "markets", "kerbtrade.xyz/markets", [[7.7, 1, 720, 450], [9, 1, 720, 450], [10, 1.55, 560, 520], [12.5, 1.6, 600, 540]],
       (v) => hl(v, [184, 469, 445, 571], t, 10.1, "#ff6b57") + hl(v, [445, 573, 707, 674], t, 11.1, "#7fd48a"));
     h += cap(t, 8.1, 12.3, "$50K of NOVAAI", "Pool: chart <span class='red'>−9.4%</span> · Kerb: <span class='grn'>0.0%</span>", 140, 862);
   }
   // Scene 4: make the offer.
   if (t > 12.3 && t < 15.9) {
-    h += win(t, 12.4, 15.8, "make", "kerb.trade/offers/new", [[12.4, 1.1, 640, 360], [15.8, 1.25, 620, 330]],
+    h += win(t, 12.4, 15.8, "make", "kerbtrade.xyz/offers/new", [[12.4, 1.1, 640, 360], [15.8, 1.25, 620, 330]],
       (v, s) => hl(v, [158, 85, 877, 642], t, 13.3) + cursor(t, [[12.4, 1300, 700], [13.6, ...v([675, 112, 752, 144]).slice(0, 2).map((q, j) => q + (j ? 18 : 40)), true], [15.8, 1100, 520]]));
     h += cap(t, 12.7, 15.6, "Step 1", "Lock the bag. Name your price.", 140, 862);
   }
   // Scene 5: the filled offer.
   if (t > 15.6 && t < 19.3) {
-    h += win(t, 15.7, 19.2, "offer", "kerb.trade/offers/0", [[15.7, 1.3, 520, 260], [19.2, 1.55, 500, 240]],
+    h += win(t, 15.7, 19.2, "offer", "kerbtrade.xyz/offers/0", [[15.7, 1.3, 520, 260], [19.2, 1.55, 500, 240]],
       (v) => hl(v, [183, 106, 305, 128], t, 16.6, "#7fd48a", 8) + hl(v, [176, 136, 496, 184], t, 17.2));
     h += cap(t, 16, 19, "Step 2", "One buyer takes it. One transaction.", 140, 862);
   }
