@@ -7,3 +7,6 @@ contracts/broadcast
 *.tsbuildinfo
 .DS_Store
 scripts/.last-fill
+video/out/
+video/stills/
+video/render.log
