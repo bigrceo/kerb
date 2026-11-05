@@ -16,7 +16,7 @@ if (mode === "stills") {
   for (const t of ts) { await page.evaluate((t) => render(+t), t); await page.screenshot({ path: `stills/${COMP.replace(".html", "")}-${t}.jpg`, type: "jpeg", quality: 85 }); }
 } else {
   mkdirSync("out", { recursive: true });
-  const ff = spawn(FF, ["-y", "-f", "image2pipe", "-framerate", String(FPS), "-c:v", "mjpeg", "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-preset", "slow", OUT], { stdio: ["pipe", "inherit", "inherit"] });
+  const ff = spawn(FF, ["-y", "-f", "image2pipe", "-framerate", String(FPS), "-c:v", "mjpeg", "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-preset", "slow", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-movflags", "+faststart", OUT], { stdio: ["pipe", "inherit", "inherit"] });
   for (let f = 0; f < FPS * DUR; f++) {
     await page.evaluate((t) => render(t), f / FPS);
     ff.stdin.write(await page.screenshot({ type: "jpeg", quality: 95 }));

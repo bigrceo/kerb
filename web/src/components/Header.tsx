@@ -133,7 +133,9 @@ export function Header() {
 
   const open = (k: keyof typeof MENUS | null) => (clearTimeout(shut.current), setMenu(k));
   const hover = () => matchMedia("(hover: hover)").matches;
-  const inMenu = (k: keyof typeof MENUS) => MENUS[k].rows.some((r) => path.startsWith(r[3]));
+  // Markets and Docs have their own top links, so they do not light up the Data menu too.
+  const inMenu = (k: keyof typeof MENUS) =>
+    !path.startsWith("/markets") && !path.startsWith("/docs") && MENUS[k].rows.some((r) => path.startsWith(r[3]));
 
   return (
     <>
