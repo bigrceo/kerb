@@ -56,30 +56,12 @@ const TX = "0x761488f4…209f78";
 const JOBS = {
   pfp: [1024, 1024, `<div style="position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 40%,#1d2013,${INK})"></div>
     <div style="position:absolute;inset:0;display:grid;place-items:center">${MARK(640, true)}</div>`],
-  // Banner: no ticker, no logo. The brand as a place: a painted kerb seen side on (the mark's geometry,
-  // road low on the left, pavement up on the right), its edge in kerb stripes, and a flat line running
-  // along it: the chart that does not move. Left third stays empty for the avatar.
-  "x-banner": [1500, 500, `
-    <div style="position:absolute;inset:0;background:radial-gradient(60% 90% at 78% 110%,#2a2611 0,${INK} 70%)"></div>
-    <svg style="position:absolute;inset:0" viewBox="0 0 1500 500">
-      <defs>
-        <pattern id="kp" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="skewX(-28)">
-          <rect width="28" height="56" fill="${Y}"/><rect x="28" width="28" height="56" fill="#16170f"/></pattern>
-        <linearGradient id="top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2d20"/><stop offset="1" stop-color="#15160e"/></linearGradient>
-        <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17180f"/><stop offset="1" stop-color="#0b0c08"/></linearGradient>
-        <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${Y}" stop-opacity=".35"/><stop offset="1" stop-color="${Y}" stop-opacity="0"/></radialGradient>
-      </defs>
-      <ellipse cx="1080" cy="372" rx="520" ry="70" fill="url(#glow)"/>
-      <rect x="0" y="430" width="1500" height="70" fill="url(#road)"/>
-      <rect x="560" y="360" width="940" height="70" fill="url(#kp)"/>
-      <rect x="560" y="352" width="940" height="10" fill="url(#top)"/>
-      <rect x="560" y="300" width="940" height="52" fill="url(#top)" opacity=".7"/>
-      <path d="M560 430H1500" stroke="#000" stroke-opacity=".5" stroke-width="2"/>
-      <path d="M0 300H1500" stroke="${Y}" stroke-width="2.5" stroke-opacity=".9"/>
-      <circle cx="1390" cy="300" r="6" fill="${Y}"/>
-      <circle cx="1390" cy="300" r="16" fill="${Y}" opacity=".18"/>
-    </svg>
-    <div style="position:absolute;left:520px;top:92px;font:700 84px/1.0 IN;letter-spacing:-.055em">Trade the bag<br><span style="color:${Y}">off the chart.</span></div>`],
+  // Banner: the site's own look (blurred real screen, kerb-yellow glow, kerb stripes, a real offer screen),
+  // the slogan alone on it. No ticker, no logo. Left third stays empty for the avatar.
+  "x-banner": [1500, 500, `${bg("hero", "center 30%")}<div class=kerbline style="height:12px"></div>
+    <div style="position:absolute;left:520px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center">
+      <div style="font:700 76px/1.02 IN;letter-spacing:-.05em">Trade the bag<br><span style="color:${Y}">off the chart.</span></div></div>
+    <div class=shot style="left:1150px;top:70px;width:520px;transform:rotate(-4deg)"><img src="shots/offer.png"></div>`],
   "A0-cover": [1500, 600, `${bg("markets")}<div class=kerbline></div>
     <div style="position:absolute;left:80px;top:64px">${lockup(34, 30, 24, 26, 28)}</div>
     <div style="position:absolute;left:80px;top:150px;width:720px;display:flex;flex-direction:column;gap:20px">
