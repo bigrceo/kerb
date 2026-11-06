@@ -13,7 +13,7 @@ Every number below is real (simulator read on chain on 2026-11-05, fill tx on ma
 |---|---|
 | Name | `Kerb` |
 | Handle | `@kerbtrade` (backups: `@kerbdesk`, `@kerbotc`) |
-| Bio (146 chars) | `OTC desk for Robinhood Chain. Sell your bag to one buyer, or bid for someone's. One transaction, wallet to wallet. The chart never sees it. $KERB` |
+| Bio (145 chars) | `OTC desk for Robinhood Chain. Sell your bag to one buyer, or bid for someone's. One transaction, wallet to wallet. The chart never sees it. $KERB` |
 | Link | `kerbtrade.xyz` |
 | Location | `Robinhood Chain` |
 | Avatar | `img/pfp.png` (1024², the Kerb mark at its real geometry, kerb yellow on ink) |
