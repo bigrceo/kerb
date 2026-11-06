@@ -72,8 +72,20 @@ const JOBS = {
     "Lock the bag at your price. A buyer takes it.<br>Tokens and ETH swap in the same transaction,<br>or nothing moves.", side("make", 170, 980, 760))],
   "T2-simulator": [1600, 900, post("markets", "Read on chain, not guessed", "$50K of NOVAAI into the pool:", "−9.4% on the chart.",
     "The same bag on Kerb: 0.0%.<br>Kerb shows both before you sign,<br>from Pons curves and Uniswap v4.", side("markets", 150, 960, 800))],
-  "T3-proof": [1600, 900, post("explorer", "Live on mainnet", "First fill settled.", "Check it yourself.",
-    `1.086 NOVAAI for 0.0002 ETH, wallet to wallet.<br>One transaction. Status: success.<br><span class=mono style="font-size:26px;color:#9b9a8c">tx ${TX}</span>`, side("transfers", 190, 960, 800))],
+  // Proof, in the LIVE film's look: yellow grid, kerb stripes, a drawn receipt of the real fill. No lockup, no footer.
+  "T3-proof": [1600, 900, `<div style="position:absolute;inset:0;background:radial-gradient(70% 70% at 70% 40%,#1d2013,${INK})"></div>
+    <div style="position:absolute;inset:0;opacity:.06;background-image:linear-gradient(${Y} 1px,transparent 1px),linear-gradient(90deg,${Y} 1px,transparent 1px);background-size:80px 80px"></div>
+    <div class=kerbline style="height:12px;bottom:28px;background:repeating-linear-gradient(90deg,${Y} 0 40px,transparent 40px 80px)"></div>
+    <div style="position:absolute;left:90px;top:0;bottom:0;width:740px;display:flex;flex-direction:column;justify-content:center;gap:28px">
+      <div class=eye>Live on mainnet</div>
+      <h1 style="font-size:84px;font-weight:800">First trade done.<br><span>Check it yourself.</span></h1>
+      <div class=body>Sold to one buyer, wallet to wallet.<br>One transaction. The chart didn't move.</div></div>
+    <div style="position:absolute;left:860px;top:170px;width:650px;border-radius:28px;padding:40px 46px;background:linear-gradient(180deg,#17190f,#101109);box-shadow:inset 0 0 0 1.5px rgba(242,194,48,.22),0 50px 120px -30px rgba(0,0,0,.85),0 0 140px -40px rgba(242,194,48,.35)">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font:700 18px IN;letter-spacing:.24em;color:#8f8e80">ROBINHOOD CHAIN · FILL #0</div>
+      <div style="padding:9px 20px;border-radius:999px;background:rgba(111,220,132,.14);color:#6fdc84;font:700 24px IN">✓ Success</div></div>
+      <div style="height:22px"></div>
+      ${[["Buyer got","1.086 NOVAAI"],["Seller got","0.0002 ETH"],["Transactions","1"],["Chart move",'<span style="color:#6fdc84">0.0%</span>']].map(([l,r])=>`<div style="display:flex;justify-content:space-between;font:700 30px IN;padding:20px 0;border-top:1px solid rgba(255,255,255,.08)"><span style="color:#8f8e80;font-weight:500">${l}</span><span>${r}</span></div>`).join("")}
+      <div class=mono style="font-size:20px;color:#8f8e80;margin-top:16px">tx 0x761488f4858e6c65…ccd58209f78</div></div>`],
   "T4-escrow": [1600, 900, post("offer", "No server key", "Your escrow goes one way:", "to your buyer, or back to you.",
     "No off-chain signature, no admin withdrawal.<br>Contract source verified, exact match, on Sourcify.<br>Cancel any time.")],
   "T5-whales": [1600, 900, post("history", "Private bids", "Want a whale's bag?", "Bid for it directly.",
