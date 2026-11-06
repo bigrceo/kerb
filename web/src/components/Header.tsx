@@ -171,9 +171,11 @@ export function Header() {
               </Link>
             </div>
             <div className="navr">
-              <span className="ca" title="Contract address">
-                ${BRAND.ticker} <span>{BRAND.tokenAddress ? short(BRAND.tokenAddress) : "CA at launch"}</span>
-              </span>
+              {BRAND.tokenAddress && (
+                <button type="button" className="ca" title="Copy contract address" onClick={() => navigator.clipboard?.writeText(BRAND.tokenAddress)}>
+                  ${BRAND.ticker} <span>{short(BRAND.tokenAddress)}</span>
+                </button>
+              )}
               <a className="xb" href={BRAND.x} aria-label="X">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
                   <path d="M18.9 2H22l-7.6 8.7L23 22h-6.8l-5.3-7-6.1 7H1.7l8.1-9.3L1 2h7l4.8 6.4L18.9 2Zm-1.2 18h1.9L7.4 4H5.4l12.3 16Z" />

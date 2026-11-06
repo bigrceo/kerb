@@ -81,7 +81,7 @@ export default function Docs() {
         </Sec>
         <Sec id="edition" t="This edition">
           <p>{ON_TESTNET ? `The desk runs on ${DESK_CHAIN.name} (${DESK_CHAIN.id}) for now. Market data is mainnet; real Robinhood Chain coins do not exist on testnet, so fills there use a demo coin (KDEMO). The same contract goes to mainnet unchanged.` : <>The desk runs on {DESK_CHAIN.name} ({DESK_CHAIN.id}). Its source is verified, exact match, on <a className="link" href={`https://repo.sourcify.dev/${DESK_CHAIN.id}/${DESK}`}>Sourcify</a>.</>}</p>
-          <p className="mt-3"><b>${BRAND.ticker}</b> is the desk&apos;s token. {BRAND.tokenAddress ? `Address: ${BRAND.tokenAddress}.` : "It is not live yet."}</p>
+          <p className="mt-3"><b>${BRAND.ticker}</b> is the desk&apos;s token. {BRAND.tokenAddress && `Address: ${BRAND.tokenAddress}.`}</p>
         </Sec>
       </article>
     </div>

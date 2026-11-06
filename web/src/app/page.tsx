@@ -18,10 +18,12 @@ export default function Home() {
             How it works
           </Link>
         </div>
-        <p style={{ animationDelay: "450ms" }} className="rise mt-10 text-sm text-dim">
-          <span className="label mr-2">${BRAND.ticker}</span>
-          {BRAND.tokenAddress ? <span className="num">{BRAND.tokenAddress}</span> : "Not live yet"}
-        </p>
+        {BRAND.tokenAddress && (
+          <p style={{ animationDelay: "450ms" }} className="rise mt-10 text-sm text-dim">
+            <span className="label mr-2">${BRAND.ticker}</span>
+            <span className="num">{BRAND.tokenAddress}</span>
+          </p>
+        )}
       </div>
       <Kerbline />
     </div>
