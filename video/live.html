@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<style>
+  /* Kerb, launch film. 1920x1080, 27 s. Every frame is a pure function of t: render(t).
+     Real screens of the site and of the explorer (screens/, taken by capture.mjs), animated. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0b0c09; font-family: Inter, sans-serif; color: #f1efe4; }
+  #bg { position: absolute; inset: 0; }
+  #stage { position: absolute; inset: 0; perspective: 2400px; }
+  .line { position: absolute; left: 0; right: 0; text-align: center; font-weight: 700; font-size: 84px; letter-spacing: -.045em; line-height: 1.05; }
+  .w { display: inline-block; margin: 0 .12em; }
+  .acc { color: #f2c230; } .red { color: #ff6b57; } .grn { color: #7fd48a; }
+  .eyebrow { font-size: 20px; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; color: #9b9a8c; }
+  .win { position: absolute; border-radius: 20px; overflow: hidden; background: #0d0e0b; box-shadow: 0 0 0 1px rgba(242,194,48,.16), 0 60px 160px -40px rgba(242,194,48,.32), 0 40px 90px rgba(0,0,0,.65); }
+  .bar { height: 46px; display: flex; align-items: center; gap: 8px; padding: 0 18px; background: #15170f; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .bar i { width: 12px; height: 12px; border-radius: 50%; background: #34362b; }
+  .url { margin: 0 auto; width: 520px; height: 28px; border-radius: 8px; background: #0b0c09; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: #9b9a8c; }
+  .url b { color: #f1efe4; font-weight: 500; }
+  .view { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; overflow: hidden; }
+  .view img { position: absolute; left: 0; top: 0; transform-origin: 0 0; width: 1440px; }
+  .hl { position: absolute; border-radius: 14px; z-index: 3; }
+  .cap { position: absolute; z-index: 10; padding: 22px 30px; border-radius: 22px; background: rgba(18,19,14,.78); backdrop-filter: blur(16px); box-shadow: inset 0 0 0 1px rgba(242,194,48,.22), 0 30px 60px -20px rgba(0,0,0,.7); }
+  .cap .n { font-size: 16px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: #f2c230; }
+  .cap .t { font-size: 44px; font-weight: 700; letter-spacing: -.035em; margin-top: 6px; white-space: nowrap; }
+  .chip { position: absolute; z-index: 11; padding: 12px 20px; border-radius: 999px; font: 500 22px "JetBrains Mono", monospace; background: rgba(18,19,14,.86); box-shadow: inset 0 0 0 1px rgba(127,212,138,.45); color: #cfe9d2; white-space: nowrap; }
+  .chip b { color: #7fd48a; font-weight: 500; }
+  .cursor { position: absolute; width: 30px; height: 30px; z-index: 8; filter: drop-shadow(0 3px 6px rgba(0,0,0,.6)); }
+  .ripple { position: absolute; border-radius: 50%; border: 2px solid #f2c230; z-index: 7; }
+  .vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(80% 80% at 50% 50%, transparent 55%, rgba(0,0,0,.6)); }
+</style>
+</head>
+<body>
+<svg id="bg" viewBox="0 0 1920 1080"></svg>
+<div id="stage"></div>
+<div class="vig"></div>
+<script>
+const stage = document.getElementById("stage"), bg = document.getElementById("bg");
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 4);
+const inout = (x) => { x = clamp(x); return x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2; };
+const back = (x) => { x = clamp(x); const c = 1.5; return 1 + (c + 1) * (x - 1) ** 3 + c * (x - 1) ** 2; };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const env = (t, a, b, fi = .5, fo = .5) => Math.min(ease(prog(t, a, a + fi)), 1 - ease(prog(t, b - fo, b)));
+const MARK = `<svg viewBox="0 0 32 32"><path d="M2 22h12v-9h16v15H2z" fill="#f2c230"/></svg>`;
+const FILL = "0x761488f4858e6c658ea6b4d3a3db680a448515f2f611048356ad3ccd58209f78";
+
+function words(text, t, start, step = .1, cls = {}) {
+  return text.split(" ").map((w, i) => {
+    const k = ease(prog(t, start + i * step, start + i * step + .6));
+    return `<span class="w ${cls[i] || ""}" style="opacity:${k};filter:blur(${(1 - k) * 12}px);transform:translateY(${(1 - k) * 26}px)">${w}</span>`;
+  }).join("");
+}
+// Camera keys: [time, zoom, cx, cy], centre in page pixels (1440x900 page), eased between keys.
+function cam(t, keys) {
+  let i = 0; while (i < keys.length - 2 && t > keys[i + 1][0]) i++;
+  const [ta, ...a] = keys[i], [tb, ...b] = keys[i + 1], k = inout(prog(t, ta, tb));
+  return a.map((v, j) => lerp(v, b[j], k));
+}
+const VW = 1520, VH = 950, BASE = VW / 1440;
+// A browser window showing one real screen, framed by the camera; boxes in page pixels.
+function win(t, a, b, img, url, keys, extra = "", from = "up") {
+  const k = env(t, a, b, .8, .55), z0 = cam(t, keys);
+  const [z, cx, cy] = z0, s = z * BASE;
+  const tx = VW / 2 - cx * s, ty = VH / 2 - cy * s;
+  const ry = from === "up" ? (1 - k) * -10 : 0, rx = (1 - k) * 14, y = (1 - k) * 160, sc = lerp(.9, 1, k);
+  const toView = ([x1, y1, x2, y2]) => [tx + x1 * s, ty + y1 * s, (x2 - x1) * s, (y2 - y1) * s];
+  const body = typeof extra === "function" ? extra(toView, s) : extra;
+  return `<div class="win" style="left:${(1920 - VW) / 2}px;top:${(1080 - VH - 46) / 2}px;width:${VW}px;height:${VH + 46}px;opacity:${k};transform:translateY(${y}px) rotateX(${rx}deg) rotateY(${ry}deg) scale(${sc})">
+    <div class="bar"><i></i><i></i><i></i><div class="url">🔒 <b>${url}</b></div></div>
+    <div class="view"><img src="screens/${img}.png" style="transform:translate(${tx}px,${ty}px) scale(${s / 1})">${body}</div></div>`;
+}
+function hl(view, box, t, a, color = "#f2c230", pad = 10) {
+  const k = ease(prog(t, a, a + .5)); if (k <= 0) return "";
+  const [x, y, w, h] = view(box);
+  const glow = color === "#ff6b57" ? "255,107,87" : color === "#7fd48a" ? "127,212,138" : "242,194,48";
+  return `<div class="hl" style="left:${x - pad}px;top:${y - pad}px;width:${w + 2 * pad}px;height:${h + 2 * pad}px;opacity:${k};box-shadow:0 0 0 ${2 + (1 - k) * 8}px ${color}, 0 0 60px 6px rgba(${glow},${.45 * k})"></div>`;
+}
+function cap(t, a, b, n, text, x, y) {
+  const k = env(t, a, b, .6, .4);
+  return `<div class="cap" style="left:${x}px;top:${y}px;opacity:${k};transform:translateY(${(1 - k) * 30}px) scale(${lerp(.94, 1, k)})"><div class="n">${n}</div><div class="t">${text}</div></div>`;
+}
+function cursor(t, path) {
+  let i = 0; while (i < path.length - 2 && t > path[i + 1][0]) i++;
+  const [ta, xa, ya] = path[i], [tb, xb, yb, click] = path[i + 1], k = inout(prog(t, ta, tb));
+  const x = lerp(xa, xb, k), y = lerp(ya, yb, k);
+  let r = "";
+  if (click) { const c = prog(t, tb, tb + .5); if (c > 0 && c < 1) r = `<div class="ripple" style="left:${xb - 40 * c}px;top:${yb - 40 * c}px;width:${80 * c}px;height:${80 * c}px;opacity:${1 - c}"></div>`; }
+  return r + `<svg class="cursor" style="left:${x}px;top:${y}px" viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-3 7z" fill="#fff" stroke="#0b0c09" stroke-width="1.4"/></svg>`;
+}
+
+// Background: the kerb line, flat and sliding; a falling pool chart in the opening.
+function background(t) {
+  const off = (t * 60) % 80;
+  let s = `<defs><radialGradient id="g" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#1a1c12"/><stop offset="1" stop-color="#0b0c09"/></radialGradient></defs><rect width="1920" height="1080" fill="url(#g)"/>`;
+  s += `<g opacity=".05">${Array.from({ length: 25 }, (_, i) => `<path d="M${i * 80} 0V1080" stroke="#f2c230"/>`).join("")}${Array.from({ length: 14 }, (_, i) => `<path d="M0 ${i * 80}H1920" stroke="#f2c230"/>`).join("")}</g>`;
+  s += `<g transform="translate(${-off} 0)" opacity=".9">${Array.from({ length: 26 }, (_, i) => `<rect x="${i * 80}" y="1044" width="40" height="12" fill="#f2c230"/>`).join("")}</g><rect y="1056" width="1920" height="24" fill="#f2c230" opacity=".06"/>`;
+  return s;
+}
+
+// Scene 1: a big sale into a thin pool drags the chart down.
+function opening(t) {
+  if (t > 4.1) return "";
+  const k = env(t, 0, 4.1, .3, .5);
+  const drop = ease(prog(t, 1.6, 2.6));
+  const pts = Array.from({ length: 40 }, (_, i) => {
+    const x = 360 + i * 30, base = 640 + Math.sin(i * .9) * 12 - i * 2.5;
+    const y = i < 26 ? base : base + drop * (i - 25) * 16;
+    return `${x},${y}`;
+  });
+  const draw = ease(prog(t, .2, 1.6)) * 40;
+  const shown = pts.slice(0, Math.max(2, Math.ceil(draw)));
+  const last = shown[shown.length - 1].split(",");
+  const red = drop > .05;
+  return `<svg style="position:absolute;inset:0;opacity:${k}" viewBox="0 0 1920 1080">
+      <polyline points="${shown.join(" ")}" fill="none" stroke="${red ? "#ff6b57" : "#f1efe4"}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${last[0]}" cy="${last[1]}" r="9" fill="${red ? "#ff6b57" : "#f1efe4"}"/>
+      ${red ? `<text x="${+last[0] + 24}" y="${+last[1] + 10}" font-family="Inter" font-weight="700" font-size="40" fill="#ff6b57" opacity="${drop}">−9.4%</text>` : ""}
+    </svg>
+    <div class="line" style="top:250px;opacity:${k}">${words("You want to sell your bag.", t, .25)}</div>
+    <div class="line" style="top:350px;opacity:${k}">${words("The price crashes.", t, 1.7, .12, { 2: "red" })}</div>`;
+}
+
+// Scene 7: end card.
+function endcard(t) {
+  if (t < 23.6) return "";
+  const k = ease(prog(t, 23.6, 24.4)), m = back(prog(t, 23.7, 24.5));
+  return `<div style="position:absolute;left:0;right:0;top:300px;text-align:center;opacity:${k}">
+      <div style="width:${130 * m}px;height:${130 * m}px;margin:0 auto">${MARK}</div>
+      <div style="font-size:150px;font-weight:800;letter-spacing:-.06em;margin-top:6px">${words("We are live.", t, 23.9, .12)}</div>
+      <div style="font-size:44px;color:#9b9a8c;font-weight:500;letter-spacing:-.02em;margin-top:4px">${words("Sell big. Don't crash the chart.", t, 24.4, .07)}</div>
+      <div class="eyebrow" style="margin-top:44px;opacity:${ease(prog(t, 25, 25.6))}">$KERB &nbsp;·&nbsp; kerbtrade.xyz &nbsp;·&nbsp; Robinhood Chain</div>
+    </div>`;
+}
+
+window.render0 = (t) => {
+  bg.innerHTML = background(t);
+  let h = opening(t);
+  // Scene 2: the site.
+  if (t > 3.6 && t < 7.9) {
+    h += `<div class="line" style="top:${40 - 0}px;font-size:40px;font-weight:600;opacity:${env(t, 3.8, 7.6, .5, .4)}">${words("Kerb: sell it to one buyer instead.", t, 3.9, .07)}</div>`;
+    h += win(t, 3.7, 7.8, "hero", "kerbtrade.xyz", [[3.7, .92, 720, 450], [7.8, 1.06, 720, 380]]);
+  }
+  // Scene 3: the simulator, real numbers for $50K of NOVAAI.
+  if (t > 7.6 && t < 12.6) {
+    h += win(t, 7.7, 12.5, "markets", "kerbtrade.xyz/markets", [[7.7, 1, 720, 450], [9, 1, 720, 450], [10, 1.55, 560, 520], [12.5, 1.6, 600, 540]],
+      (v) => hl(v, [184, 469, 445, 571], t, 10.1, "#ff6b57") + hl(v, [445, 573, 707, 674], t, 11.1, "#7fd48a"));
+    h += cap(t, 8.1, 12.3, "Same $50K bag", "Normal sell: <span class='red'>−9.4%</span> · Kerb: <span class='grn'>0.0%</span>", 140, 862);
+  }
+  // Scene 4: make the offer.
+  if (t > 12.3 && t < 15.9) {
+    h += win(t, 12.4, 15.8, "make", "kerbtrade.xyz/offers/new", [[12.4, 1.1, 640, 360], [15.8, 1.25, 620, 330]],
+      (v, s) => hl(v, [158, 85, 877, 642], t, 13.3) + cursor(t, [[12.4, 1300, 700], [13.6, ...v([675, 112, 752, 144]).slice(0, 2).map((q, j) => q + (j ? 18 : 40)), true], [15.8, 1100, 520]]));
+    h += cap(t, 12.7, 15.6, "Step 1", "You pick your price.", 140, 862);
+  }
+  // Scene 5: the filled offer.
+  if (t > 15.6 && t < 19.3) {
+    h += win(t, 15.7, 19.2, "offer", "kerbtrade.xyz/offers/0", [[15.7, 1.3, 520, 260], [19.2, 1.55, 500, 240]],
+      (v) => hl(v, [183, 106, 305, 128], t, 16.6, "#7fd48a", 8) + hl(v, [176, 136, 496, 184], t, 17.2));
+    h += cap(t, 16, 19, "Step 2", "A buyer takes it. Done.", 140, 862);
+  }
+  // Scene 6: the proof on the explorer, mainnet.
+  if (t > 19 && t < 23.9) {
+    const det = t < 21.6;
+    h += win(t, 19.1, 23.8, det ? "explorer" : "transfers", "robinhoodchain.blockscout.com", det ? [[19.1, 1.15, 720, 330], [21.6, 1.4, 600, 300]] : [[21.6, 1.35, 760, 360], [23.8, 1.5, 800, 420]],
+      (v) => det ? hl(v, [277, 182, 688, 211], t, 19.8) + hl(v, [524, 376, 677, 400], t, 20.5, "#7fd48a", 8) : hl(v, [277, 400, 1392, 464], t, 21.9, "#7fd48a"));
+    h += cap(t, 19.4, 23.6, "Real trade, on chain", "Check it yourself.", 140, 862);
+    const ck = env(t, 20.2, 23.6, .5, .4);
+    h += `<div class="chip" style="right:140px;top:${900 - (1 - ck) * 20}px;opacity:${ck}"><b>✓ Success</b> &nbsp;tx ${FILL.slice(0, 10)}…${FILL.slice(-6)}</div>`;
+  }
+  h += endcard(t);
+  stage.innerHTML = h;
+};
+// Keyword slam: Kerb fixes that. 1 buyer. 1 click. 0 crash.
+function slam(t) {
+  const k = env(t, 4.0, 7.4, .3, .4);
+  const pop = (a) => { const m = back(prog(t, a, a + .45)); return `opacity:${ease(prog(t, a, a + .3))};transform:scale(${lerp(.6, 1, m)})`; };
+  const row = (a, n, w) => `<div style="display:inline-block;margin:0 46px;${pop(a)}"><span class="acc">${n}</span> ${w}</div>`;
+  return `<div style="position:absolute;inset:0;opacity:${k}">
+    <div class="line" style="top:330px;font-size:64px;color:#9b9a8c">${words("Kerb fixes that.", t, 4.1)}</div>
+    <div class="line" style="top:470px;font-size:150px;font-weight:800;letter-spacing:-.06em">${row(4.9, "1", "buyer.")}${row(5.4, "1", "click.")}</div>
+    <div class="line" style="top:650px;font-size:150px;font-weight:800;letter-spacing:-.06em">${row(5.9, "0", "crash.")}</div></div>`;
+}
+window.render = (t) => {
+  if (t < 4.1) return render0(t);
+  if (t < 7.3) { bg.innerHTML = background(t); stage.innerHTML = slam(t); return; }
+  render0(t - 3.6);
+};
+window.ready = Promise.all([document.fonts.ready, ...["hero", "markets", "make", "offer", "explorer", "transfers"].map((n) => new Promise((r) => { const i = new Image(); i.onload = r; i.onerror = r; i.src = `screens/${n}.png`; }))]);
+const q = new URLSearchParams(location.search).get("t"); if (q) ready.then(() => render(+q));
+</script>
+</body>
+</html>
