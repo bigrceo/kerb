@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=block" rel="stylesheet">
+<style>
+  /* Kerb, product film. 1920x1080, 46 s. Pure function of t: render(t). Kinetic type, the real site in phones
+     (mobile/, by capture-mobile.mjs), drawn charts and cards. Dark ground, drifting kerb-yellow haze, kerb stripes. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0a0b08; font-family: Inter, sans-serif; color: #f4f2e8; }
+  #bg, #stage { position: absolute; inset: 0; }
+  .abs { position: absolute; }
+  .c { position: absolute; left: 0; right: 0; text-align: center; }
+  .K { font-weight: 900; letter-spacing: -.045em; line-height: .98; text-transform: uppercase; }
+  .w { display: inline-block; margin: 0 .1em; }
+  .acc { color: #f2c230; text-shadow: 0 0 40px rgba(242,194,48,.55), 0 0 110px rgba(242,194,48,.35); }
+  .red { color: #ff5a47; text-shadow: 0 0 40px rgba(255,90,71,.5); }
+  .grn { color: #6fdc84; text-shadow: 0 0 40px rgba(111,220,132,.45); }
+  .dim { color: #8f8e80; }
+  .phone { position: absolute; width: 410px; height: 862px; border-radius: 64px; background: #1a1b16; padding: 17px;
+    box-shadow: inset 0 0 0 2px #3a3b33, inset 0 0 0 6px #0d0e0b, 0 60px 140px -30px rgba(0,0,0,.9), 0 0 160px -40px rgba(242,194,48,.35); }
+  .phone .scr { position: relative; width: 376px; height: 828px; border-radius: 48px; overflow: hidden; background: #0d0e0b; }
+  .phone .scr img { position: absolute; left: 0; top: 56px; width: 376px; }
+  .phone .isl { position: absolute; left: 50%; top: 30px; width: 112px; height: 32px; border-radius: 20px; background: #000; transform: translateX(-50%); z-index: 2; }
+  .card { position: absolute; border-radius: 30px; background: linear-gradient(180deg, #181a10, #0f100a); box-shadow: inset 0 0 0 1.5px rgba(242,194,48,.2), 0 40px 100px -30px rgba(0,0,0,.85); }
+  .vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(85% 85% at 50% 50%, transparent 50%, rgba(0,0,0,.7)); }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="stage"></div>
+<div class="vig"></div>
+<script>
+const stage = document.getElementById("stage"), bg = document.getElementById("bg");
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 4);
+const inout = (x) => { x = clamp(x); return x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2; };
+const back = (x, c = 1.6) => { x = clamp(x); return 1 + (c + 1) * (x - 1) ** 3 + c * (x - 1) ** 2; };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const env = (t, a, b, fi = .35, fo = .3) => Math.min(ease(prog(t, a, a + fi)), 1 - ease(prog(t, b - fo, b)));
+const Y = "#f2c230", RED = "#ff5a47", GRN = "#6fdc84";
+const MARK = (s) => `<svg viewBox="0 0 32 32" style="width:${s}px;height:${s}px;display:block;overflow:visible"><path d="M2 22h12v-9h16v15H2z" fill="${Y}"/></svg>`;
+
+// Kinetic words: scale 1.25 -> 1 with overshoot, 14px blur resolving, 40px rise, staggered.
+function kin(text, t, start, step = .09, cls = {}) {
+  return text.split(" ").map((w, i) => {
+    const a = start + i * step, k = ease(prog(t, a, a + .45)), s = lerp(1.25, 1, back(prog(t, a, a + .5), 2.2));
+    return `<span class="w ${cls[i] || ""}" style="opacity:${k};filter:blur(${(1 - k) * 14}px);transform:translateY(${(1 - k) * 40}px) scale(${s})">${w}</span>`;
+  }).join("");
+}
+const pop = (t, a, d = .5) => `opacity:${ease(prog(t, a, a + d * .5))};transform:scale(${lerp(.4, 1, back(prog(t, a, a + d), 2))})`;
+
+function background(t) {
+  const hx = 50 + Math.sin(t * .23) * 18, hy = 60 + Math.cos(t * .17) * 14, gx = 50 - Math.sin(t * .19) * 22;
+  const off = (t * 80) % 96;
+  return `<div class="abs" style="inset:0;background:radial-gradient(60% 55% at ${hx}% ${hy}%,rgba(242,194,48,.13),transparent 70%),radial-gradient(45% 40% at ${gx}% 20%,rgba(242,194,48,.06),transparent 70%),#0a0b08"></div>
+    <div class="abs" style="left:${-off}px;right:-96px;bottom:26px;height:12px;background:repeating-linear-gradient(90deg,${Y} 0 48px,transparent 48px 96px);opacity:.85"></div>`;
+}
+
+// A · 0–4.5 · A big sell wrecks the chart.
+function A(t) {
+  const k = env(t, 0, 4.5, .2, .25); if (k <= 0) return "";
+  const drop = ease(prog(t, 2.6, 3.1)), shake = t > 2.6 && t < 3.2 ? Math.sin(t * 95) * 14 * (1 - prog(t, 2.6, 3.2)) : 0;
+  const ups = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
+  let y = 660, c = "";
+  ups.forEach((u, i) => {
+    const a = .3 + i * .12, g = ease(prog(t, a, a + .3)); if (g <= 0) return;
+    const h = 34 + (i * 41) % 46;
+    c += `<rect x="${360 + i * 66}" y="${u ? y - h * g : y}" width="40" height="${h * g}" rx="6" fill="${u ? GRN : RED}"/>`;
+    y = u ? y - h * .72 : y + h * .5;
+  });
+  if (drop > 0) c += `<rect x="${360 + 16 * 66}" y="${y}" width="56" height="${380 * drop}" rx="8" fill="${RED}" style="filter:drop-shadow(0 0 30px ${RED})"/>`;
+  return `<div class="abs" style="inset:0;opacity:${k};transform:translateX(${shake}px)">
+    <div class="abs K" style="left:90px;top:80px;font-size:56px">${kin("You hold a big bag.", t, .1, .07)}</div>
+    <svg class="abs" style="inset:0" viewBox="0 0 1920 1080">${c}</svg>
+    <div class="abs K red" style="left:1495px;top:${y + 380 * drop - 100}px;font-size:110px;opacity:${drop}">−${(9.4 * drop).toFixed(1)}%</div>
+    <div class="abs K" style="left:90px;bottom:110px;font-size:56px">${kin("You sell. The chart pays.", t, 3.0, .08, { 3: "red", 4: "red" })}</div></div>`;
+}
+
+// B · 4.5–7 · Logo.
+function B(t) {
+  const k = env(t, 4.5, 7.0, .1, .3); if (k <= 0) return "";
+  const m = back(prog(t, 4.5, 5.1), 2.4), glow = 1 - prog(t, 4.5, 5.6);
+  return `<div class="abs" style="inset:0;opacity:${k};display:flex;align-items:center;justify-content:center;gap:44px">
+    <div style="transform:scale(${m});filter:drop-shadow(0 0 ${30 + 80 * glow}px rgba(242,194,48,.8))">${MARK(220)}</div>
+    <div style="font-size:260px;font-weight:800;letter-spacing:-.06em">${kin("Kerb", t, 4.75)}</div></div>`;
+}
+
+// C · 7–11.8 · Kinetic phrases, one at a time.
+function C(t) {
+  const P = [[7.0, 8.6, "OTC desk"], [8.6, 10.1, "for big bags"], [10.1, 11.8, "on Robinhood Chain"]];
+  return P.map(([a, b, s], j) => { const k = env(t, a, b, .05, .2); return k > 0 ? `<div class="c K" style="top:430px;font-size:${j === 2 ? 170 : 210}px;opacity:${k}">${kin(s, t, a, .1, j === 1 ? { 1: "acc" } : {})}</div>` : ""; }).join("");
+}
+
+// D · 11.8–16 · The promise.
+function D(t) {
+  const k = env(t, 11.8, 16, .05, .3); if (k <= 0) return "";
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    <div class="c K" style="top:230px;font-size:150px">${kin("Sell the whole bag", t, 11.9, .1)}</div>
+    <div class="c K acc" style="top:420px;font-size:190px">${kin("to one buyer.", t, 12.7, .12)}</div>
+    <div class="c K" style="top:650px;font-size:110px">${kin("The chart never moves.", t, 13.8, .09, { 3: "acc" })}</div></div>`;
+}
+
+// Phone mockup that slides in with a bounce from the right and out to the left.
+function phone(t, a, b, img, x, scroll = 0, from = 1) {
+  const i = back(prog(t, a, a + .7), 1.4), o = inout(prog(t, b - .45, b));
+  if (t < a || t > b) return "";
+  const dx = (1 - i) * 900 * from - o * 1100, rot = (1 - i) * 8 * from - o * 6;
+  const sy = lerp(0, scroll, inout(prog(t, a + .8, b - .5)));
+  return `<div class="phone" style="left:${x}px;top:110px;transform:translateX(${dx}px) rotate(${rot}deg)"><div class="scr"><div class="isl"></div><img src="mobile/${img}.png" style="transform:translateY(${-sy}px)"></div></div>`;
+}
+// E · 16–25 · The product, step by step, in a phone; big type on the left.
+function E(t) {
+  if (t < 16 || t > 25.1) return "";
+  const S = [[16, 19, "make", "Name", "your price.", "1"], [19, 22, "offer", "One buyer", "takes it.", "2"], [22, 25, "history", "One tx.", "Done.", "3"]];
+  return S.map(([a, b, img, l1, l2, n]) => {
+    const k = env(t, a, b, .05, .3); if (k <= 0) return "";
+    return `<div class="abs" style="inset:0;opacity:${k}">
+      <div class="abs K acc" style="left:150px;top:300px;font-size:60px">${kin("Step " + n, t, a + .1)}</div>
+      <div class="abs K" style="left:150px;top:390px;font-size:150px;width:1000px">${kin(l1, t, a + .2, .1)}<br>${kin(l2, t, a + .45, .1, { 0: l2 === "your price." ? "" : "acc", 1: "acc" })}</div></div>`;
+  }).join("") + phone(t, 16.05, 19.2, "make", 1250, 120) + phone(t, 19.0, 22.2, "offer", 1250, 0) + phone(t, 22.0, 25.1, "history", 1250, 0);
+}
+
+// F · 25–30.5 · Same bag, two outcomes, drawn.
+function F(t) {
+  const k = env(t, 25, 30.5, .05, .3); if (k <= 0) return "";
+  const d = ease(prog(t, 26.3, 27.6));
+  const pts = Array.from({ length: 30 }, (_, i) => `${i * 23},${50 + Math.sin(i * .8) * 7 + (i > 17 ? (i - 17) * 15 * d : 0)}`).join(" ");
+  const panel = (x, a, label, svg, big, cls, sub) => { const e = ease(prog(t, a, a + .5)); return `<div class="card" style="left:${x}px;top:300px;width:760px;height:600px;opacity:${e};transform:translateY(${(1 - e) * 90}px);padding:46px 52px">
+      <div style="font:800 26px Inter;letter-spacing:.24em;text-transform:uppercase" class="dim">${label}</div>
+      <svg width="660" height="230" style="margin-top:26px;overflow:visible">${svg}</svg>
+      <div class="K ${cls}" style="font-size:140px;margin-top:10px">${big}</div><div style="font:600 34px Inter;margin-top:12px" class="dim">${sub}</div></div>`; };
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    <div class="c K" style="top:120px;font-size:110px">${kin("Same $50K bag.", t, 25.1, .1, { 1: "acc" })}</div>
+    ${panel(160, 25.5, "Sold into the pool", `<polyline points="${pts}" fill="none" stroke="${RED}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>`, `−${(9.4 * d).toFixed(1)}%`, "red", `$${Math.round(2399 * d).toLocaleString("en-US")} lost on the way out`)}
+    ${panel(1000, 25.7, "Sold on Kerb", `<path d="M0 115H${660 * ease(prog(t, 26.4, 27.6))}" stroke="${Y}" stroke-width="7" stroke-linecap="round"/>`, "0.0%", "grn", "$0 lost. Nobody saw it.")}</div>`;
+}
+
+// G · 30.5–36 · Mosaic: everything the desk does.
+function G(t) {
+  const k = env(t, 30.5, 36, .05, .3); if (k <= 0) return "";
+  const cards = [["Sell a bag", "at your price"], ["Bid for a bag", "name what you pay"], ["Private offers", "one wallet only"], ["Whale list", "top holders of any coin"],
+    ["Partial fills", "if you allow them"], ["Cancel anytime", "escrow comes back"], ["Makers pay 0", "takers 0.3%"], ["Verified code", "exact match, Sourcify"]];
+  const z = lerp(1.08, 1, ease(prog(t, 30.5, 36)));
+  return `<div class="abs" style="inset:0;opacity:${k};transform:scale(${z})">${cards.map(([a, b], i) => {
+    const x = 150 + (i % 4) * 415, y = 230 + Math.floor(i / 4) * 330;
+    return `<div class="card" style="left:${x}px;top:${y}px;width:385px;height:300px;padding:38px 38px;${pop(t, 30.6 + i * .16, .55)}">
+      <div style="width:56px;height:56px;border-radius:16px;background:rgba(242,194,48,.14);display:grid;place-items:center">${MARK(30)}</div>
+      <div style="font:800 46px Inter;letter-spacing:-.035em;margin-top:34px">${a}</div><div style="font:500 28px Inter;margin-top:10px" class="dim">${b}</div></div>`;
+  }).join("")}</div>`;
+}
+
+// H · 36–40.5 · The benefit in one line.
+function H(t) {
+  const k = env(t, 36, 40.5, .05, .35); if (k <= 0) return "";
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    <div class="c K" style="top:300px;font-size:170px">${kin("Name your price.", t, 36.1, .12)}</div>
+    <div class="c K acc" style="top:520px;font-size:170px">${kin("Skip the chart.", t, 37.4, .12)}</div></div>`;
+}
+
+// I · 40.5–46 · Logo and call to action.
+function I(t) {
+  if (t < 40.5) return "";
+  const k = ease(prog(t, 40.5, 40.9)), m = back(prog(t, 40.5, 41.1), 2.4), glow = 1 - prog(t, 40.5, 41.8);
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    <div class="abs" style="left:0;right:0;top:250px;display:flex;align-items:center;justify-content:center;gap:40px">
+      <div style="transform:scale(${m});filter:drop-shadow(0 0 ${30 + 80 * glow}px rgba(242,194,48,.8))">${MARK(190)}</div>
+      <div style="font-size:230px;font-weight:800;letter-spacing:-.06em">${kin("Kerb", t, 40.7)}</div></div>
+    <div class="c" style="top:560px;font:600 58px Inter;letter-spacing:-.03em;color:#cfcdc0">${kin("Trade the bag off the chart.", t, 41.3, .07)}</div>
+    <div class="c" style="top:720px;${pop(t, 42.2, .6)}"><span style="display:inline-block;padding:26px 60px;border-radius:999px;background:${Y};color:#0a0b08;font:800 56px Inter;letter-spacing:-.03em;box-shadow:0 0 90px rgba(242,194,48,.45)">kerbtrade.xyz</span></div></div>`;
+}
+
+window.render = (t) => {
+  bg.innerHTML = background(t);
+  stage.innerHTML = A(t) + B(t) + C(t) + D(t) + E(t) + F(t) + G(t) + H(t) + I(t);
+};
+window.ready = Promise.all([document.fonts.ready, ...["make", "offer", "history"].map((n) => new Promise((r) => { const i = new Image(); i.onload = r; i.onerror = r; i.src = `mobile/${n}.png`; }))]);
+const q = new URLSearchParams(location.search).get("t"); if (q) ready.then(() => render(+q));
+</script>
+</body>
+</html>
