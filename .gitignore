@@ -10,3 +10,5 @@ scripts/.last-fill
 video/out/
 video/stills/
 video/render.log
+x-launch-pack/shots/
+x-launch-pack/.render.html
