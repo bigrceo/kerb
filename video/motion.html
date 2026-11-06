@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=block" rel="stylesheet">
+<style>
+  /* Kerb, LIVE film for trenchers. 1920x1080, 27 s, pure motion design: every element is drawn, no screenshots.
+     Every frame is a pure function of t: render(t). Scenes never overlap except through their own fades. */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0b0c09; font-family: Inter, sans-serif; color: #f1efe4; }
+  #bg, #stage { position: absolute; inset: 0; }
+  .abs { position: absolute; }
+  .c { position: absolute; left: 0; right: 0; text-align: center; }
+  .h { font-weight: 800; letter-spacing: -.05em; line-height: 1.02; }
+  .w { display: inline-block; margin: 0 .11em; }
+  .acc { color: #f2c230; } .red { color: #ff5a47; } .grn { color: #6fdc84; } .dim { color: #8f8e80; }
+  .eye { font-size: 22px; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; color: #f2c230; }
+  .card { position: absolute; border-radius: 28px; background: linear-gradient(180deg, #17190f, #101109); box-shadow: inset 0 0 0 1.5px rgba(242,194,48,.18), 0 40px 100px -30px rgba(0,0,0,.8); }
+  .chip { position: absolute; display: flex; align-items: center; gap: 14px; padding: 14px 24px 14px 14px; border-radius: 999px; font: 700 30px Inter; letter-spacing: -.02em; white-space: nowrap; box-shadow: 0 20px 50px -10px rgba(0,0,0,.7); }
+  .chip i { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 800 20px Inter; font-style: normal; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(85% 85% at 50% 50%, transparent 55%, rgba(0,0,0,.65)); }
+</style>
+</head>
+<body>
+<svg id="bg" viewBox="0 0 1920 1080"></svg>
+<div id="stage"></div>
+<div class="vig"></div>
+<script>
+const stage = document.getElementById("stage"), bg = document.getElementById("bg");
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 4);
+const inout = (x) => { x = clamp(x); return x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2; };
+const back = (x) => { x = clamp(x); const c = 1.7; return 1 + (c + 1) * (x - 1) ** 3 + c * (x - 1) ** 2; };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const env = (t, a, b, fi = .45, fo = .4) => Math.min(ease(prog(t, a, a + fi)), 1 - ease(prog(t, b - fo, b)));
+const Y = "#f2c230", RED = "#ff5a47", GRN = "#6fdc84";
+const MARK = (s) => `<svg viewBox="0 0 32 32" style="width:${s}px;height:${s}px;display:block"><path d="M2 22h12v-9h16v15H2z" fill="${Y}"/></svg>`;
+const FILL = "0x761488f4858e6c658ea6b4d3a3db680a448515f2f611048356ad3ccd58209f78";
+
+function words(text, t, start, step = .08, cls = {}) {
+  return text.split(" ").map((w, i) => {
+    const k = ease(prog(t, start + i * step, start + i * step + .55));
+    return `<span class="w ${cls[i] || ""}" style="opacity:${k};filter:blur(${(1 - k) * 14}px);transform:translateY(${(1 - k) * 34}px)">${w}</span>`;
+  }).join("");
+}
+const pop = (t, a, d = .5) => { const m = back(prog(t, a, a + d)); return `opacity:${ease(prog(t, a, a + d * .6))};transform:scale(${lerp(.5, 1, m)})`; };
+const tokenChip = (label = "BAG") => `<i style="background:${Y};color:#0b0c09">${MARK(26)}</i>${label}`;
+const ethChip = (label = "ETH") => `<i style="background:#e8e6f5;color:#22223a">Ξ</i>${label}`;
+
+function background(t) {
+  const off = (t * 70) % 80;
+  let s = `<defs><radialGradient id="g" cx="50%" cy="38%" r="65%"><stop offset="0" stop-color="#1b1d12"/><stop offset="1" stop-color="#0b0c09"/></radialGradient></defs><rect width="1920" height="1080" fill="url(#g)"/>`;
+  s += `<g opacity=".045">${Array.from({ length: 25 }, (_, i) => `<path d="M${i * 80} 0V1080" stroke="${Y}"/>`).join("")}${Array.from({ length: 14 }, (_, i) => `<path d="M0 ${i * 80}H1920" stroke="${Y}"/>`).join("")}</g>`;
+  s += `<g transform="translate(${-off} 0)">${Array.from({ length: 26 }, (_, i) => `<rect x="${i * 80}" y="1046" width="40" height="10" fill="${Y}"/>`).join("")}</g>`;
+  return s;
+}
+
+// 1 · 0–4.3 · A big sell into the pool: candles, then one red candle that wrecks the chart.
+function s1(t) {
+  const k = env(t, 0, 4.3, .3, .45); if (k <= 0) return "";
+  const drop = ease(prog(t, 2.0, 2.7));
+  const shake = t > 2 && t < 2.6 ? Math.sin(t * 90) * 10 * (1 - prog(t, 2, 2.6)) : 0;
+  const ups = [0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1];
+  let y = 560, c = "";
+  ups.forEach((u, i) => {
+    const a = .25 + i * .09, g = ease(prog(t, a, a + .35)); if (g <= 0) return;
+    const h = 30 + (i * 37) % 40, top = u ? y - h : y;
+    c += `<rect x="${430 + i * 62}" y="${top}" width="38" height="${h * g}" rx="5" fill="${u ? GRN : RED}" opacity="${.85}"/>`;
+    y = u ? y - h * .7 : y + h * .5;
+  });
+  const bigH = 320 * drop;
+  if (drop > 0) c += `<rect x="${430 + 14 * 62}" y="${y}" width="48" height="${bigH}" rx="6" fill="${RED}"/><rect x="${430 + 14 * 62 - 6}" y="${y}" width="60" height="${bigH}" rx="8" fill="${RED}" opacity=".25" filter="url(#bl)"/>`;
+  const pct = (9.4 * drop).toFixed(1);
+  return `<div class="abs" style="inset:0;opacity:${k};transform:translateX(${shake}px)">
+    <div class="c h" style="top:120px;font-size:96px">${words("You sell a big bag.", t, .15)}</div>
+    <svg class="abs" style="inset:0" viewBox="0 0 1920 1080"><defs><filter id="bl"><feGaussianBlur stdDeviation="18"/></filter></defs>${c}</svg>
+    <div class="abs h" style="left:1440px;top:${y + bigH - 60}px;font-size:110px;color:${RED};opacity:${drop}">−${pct}%</div>
+    <div class="c h" style="top:880px;font-size:64px">${words("The chart crashes. For everyone.", t, 2.6, .09, { 1: "red", 2: "red" })}</div></div>`;
+}
+
+// 2 · 4.2–7.6 · Yellow wipe: "there's a better way", then the Kerb mark.
+function s2(t) {
+  if (t < 4.1 || t > 7.7) return "";
+  const wi = inout(prog(t, 4.1, 4.6)), wo = inout(prog(t, 5.5, 6.0));
+  const x = wo > 0 ? lerp(0, 1920, wo) : lerp(-1920, 0, wi);
+  const k = env(t, 5.8, 7.7, .4, .45), m = back(prog(t, 5.9, 6.5));
+  return `<div class="abs" style="left:0;top:0;width:1920px;height:1080px;background:${Y};transform:translateX(${x}px);z-index:5">
+      <div class="c h" style="top:430px;font-size:120px;color:#0b0c09">${words("There's a better way.", t, 4.55, .07)}</div></div>
+    <div class="abs" style="inset:0;opacity:${k}">
+      <div style="position:absolute;left:50%;top:300px;transform:translateX(-50%) scale(${m})">${MARK(180)}</div>
+      <div class="c h" style="top:500px;font-size:180px">${words("Kerb", t, 6.0)}</div>
+      <div class="c" style="top:720px;font-size:52px;font-weight:600;letter-spacing:-.03em">${words("Sell your bag to one buyer.", t, 6.35, .06, { 4: "acc", 5: "acc" })}</div></div>`;
+}
+
+// 3 · 7.6–13.4 · How it works: seller, Kerb, buyer. Bag and ETH swap in one move.
+function s3(t) {
+  const k = env(t, 7.6, 13.4, .5, .45); if (k <= 0) return "";
+  const slide = (a, dx) => { const e = ease(prog(t, a, a + .6)); return `opacity:${e};transform:translateX(${(1 - e) * dx}px)`; };
+  const steps = [[8.4, 9.9, "1", "Lock your bag. Pick your price."], [9.9, 11.2, "2", "A buyer accepts."], [11.2, 13.4, "3", "They swap. One transaction."]];
+  const step = steps.map(([a, b, n, s]) => { const e = env(t, a, b, .35, .3); return e > 0 ? `<div class="c" style="top:150px;opacity:${e};transform:translateY(${(1 - e) * 20}px)"><span class="h acc" style="font-size:60px">${n}.</span> <span class="h" style="font-size:60px">${s}</span></div>` : ""; }).join("");
+  // Chip paths between card centres.
+  const L = [430, 560], C = [960, 560], R = [1490, 560];
+  const at = (p, q, e) => [lerp(p[0], q[0], e), lerp(p[1], q[1], e) - Math.sin(e * Math.PI) * 120];
+  const e1 = inout(prog(t, 8.7, 9.5)), e2 = inout(prog(t, 10.1, 10.8)), e3 = inout(prog(t, 11.4, 12.2));
+  const bag = e3 > 0 ? at(C, R, e3) : at(L, C, e1), eth = e3 > 0 ? at(C, L, e3) : at(R, C, e2);
+  const chip = (pos, html, bgc, col, show) => show ? `<div class="chip" style="left:${pos[0] - 95}px;top:${pos[1] + 70}px;background:${bgc};color:${col}">${html}</div>` : "";
+  const done = ease(prog(t, 12.2, 12.6));
+  const price = ease(prog(t, 9.3, 9.7));
+  const card = (x, title, sub, a, dx, glow = 0) => `<div class="card" style="left:${x - 190}px;top:330px;width:380px;height:380px;${slide(a, dx)};box-shadow:inset 0 0 0 1.5px rgba(242,194,48,${.18 + glow * .6}),0 0 ${80 * glow}px rgba(111,220,132,${.4 * glow}),0 40px 100px -30px rgba(0,0,0,.8)">
+      <div style="padding:34px 36px"><div class="eye" style="color:#8f8e80">${sub}</div><div class="h" style="font-size:58px;margin-top:10px">${title}</div></div></div>`;
+  const flat = ease(prog(t, 8, 12.5));
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    ${step}
+    ${card(430, "You", "Seller", 7.8, -120, done)}
+    ${card(1490, "Buyer", "One wallet", 8.0, 120, done)}
+    <div class="card" style="left:810px;top:380px;width:300px;height:280px;${pop(t, 7.95)};display:grid;place-items:center;box-shadow:inset 0 0 0 2px ${Y},0 0 120px rgba(242,194,48,.25)">
+      <div style="text-align:center">${MARK(110)}<div class="h" style="font-size:40px;margin-top:6px">Kerb</div>
+      <div class="mono" style="font-size:24px;color:${Y};margin-top:6px;opacity:${price}">your price ✓</div></div></div>
+    ${chip(bag, tokenChip(), Y, "#0b0c09", t > 8.6)}
+    ${chip(eth, ethChip(), "#e8e6f5", "#22223a", t > 10)}
+    <div class="c h grn" style="top:760px;font-size:56px;${pop(t, 12.25)}">✓ Done. Wallet to wallet.</div>
+    <svg class="abs" style="left:300px;top:900px" width="1320" height="80"><path d="M0 40H${1320 * flat}" stroke="${Y}" stroke-width="5" stroke-linecap="round"/><circle cx="${1320 * flat}" cy="40" r="10" fill="${Y}"/></svg>
+    <div class="abs h acc" style="left:1640px;top:908px;font-size:40px;opacity:${flat > .2 ? 1 : 0}">chart 0.0%</div></div>`;
+}
+
+// 4 · 13.3–17.4 · Same $50K bag, side by side: the pool vs Kerb.
+function s4(t) {
+  const k = env(t, 13.3, 17.4, .5, .45); if (k <= 0) return "";
+  const d = ease(prog(t, 14.3, 15.6));
+  const panel = (x, a, title, line, pct, pctC, lost, dx) => {
+    const e = ease(prog(t, a, a + .6));
+    return `<div class="card" style="left:${x}px;top:280px;width:720px;height:560px;opacity:${e};transform:translateY(${(1 - e) * 80}px)">
+      <div style="padding:40px 46px"><div class="eye" style="color:#8f8e80">${title}</div>
+      <svg width="628" height="220" style="margin-top:30px;overflow:visible">${line}</svg>
+      <div class="h" style="font-size:120px;color:${pctC};margin-top:20px">${pct}</div>
+      <div style="font-size:34px;font-weight:600;color:#8f8e80;margin-top:6px">${lost}</div></div></div>`;
+  };
+  const pts = Array.from({ length: 30 }, (_, i) => `${i * 21.6},${40 + Math.sin(i * .8) * 6 + (i > 16 ? (i - 16) * 13 * d : 0)}`).join(" ");
+  const red = `<polyline points="${pts}" fill="none" stroke="${RED}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const flat = `<path d="M0 110H${628 * ease(prog(t, 14.5, 15.6))}" stroke="${Y}" stroke-width="6" stroke-linecap="round"/>`;
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    <div class="c h" style="top:110px;font-size:80px">${words("Same $50K bag.", t, 13.45)}</div>
+    ${panel(200, 13.7, "Sell the normal way", red, `−${(9.4 * d).toFixed(1)}%`, RED, `you lose $${Math.round(2399 * d).toLocaleString("en-US")}`, -1)}
+    ${panel(1000, 13.9, "Sell on Kerb", flat, "0.0%", GRN, "you lose $0", 1)}</div>`;
+}
+
+// 5 · 17.3–20.6 · Three keywords.
+function s5(t) {
+  const k = env(t, 17.3, 20.6, .3, .45); if (k <= 0) return "";
+  const kw = [["Your price.", "you set it"], ["One buyer.", "wallet to wallet"], ["Zero crash.", "the chart never sees it"]];
+  return `<div class="abs" style="inset:0;opacity:${k}">${kw.map(([a, b], i) => `
+    <div class="card" style="left:${150 + i * 560}px;top:330px;width:500px;height:400px;${pop(t, 17.5 + i * .35, .6)};display:flex;flex-direction:column;justify-content:center;padding:0 50px">
+      <div class="h acc" style="font-size:44px">0${i + 1}</div><div class="h" style="font-size:84px;margin-top:14px">${a}</div>
+      <div style="font-size:32px;font-weight:500;color:#8f8e80;margin-top:14px">${b}</div></div>`).join("")}</div>`;
+}
+
+// 6 · 20.5–23.9 · Already live: the real mainnet fill, drawn as a receipt.
+function s6(t) {
+  const k = env(t, 20.5, 23.9, .45, .45); if (k <= 0) return "";
+  const e = ease(prog(t, 20.8, 21.5));
+  const row = (a, l, r) => `<div style="display:flex;justify-content:space-between;font-size:34px;padding:22px 0;border-top:1px solid rgba(255,255,255,.08);opacity:${ease(prog(t, a, a + .4))};transform:translateX(${(1 - ease(prog(t, a, a + .4))) * 30}px)"><span class="dim" style="font-weight:500">${l}</span><span style="font-weight:700">${r}</span></div>`;
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    <div class="c h" style="top:110px;font-size:80px">${words("Already working. On mainnet.", t, 20.6, .07, { 2: "acc", 3: "acc" })}</div>
+    <div class="card" style="left:510px;top:290px;width:900px;padding:44px 56px;opacity:${e};transform:translateY(${(1 - e) * 80}px) scale(${lerp(.95, 1, e)})">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div class="eye" style="color:#8f8e80">Robinhood Chain · fill #0</div>
+      <div style="${pop(t, 21.4)};padding:10px 22px;border-radius:999px;background:rgba(111,220,132,.14);color:${GRN};font:700 28px Inter">✓ Success</div></div>
+      <div style="height:26px"></div>
+      ${row(21.6, "Buyer got", "1.086 NOVAAI")}${row(21.85, "Seller got", "0.0002 ETH")}${row(22.1, "Transactions", "1")}${row(22.35, "Chart move", `<span class="grn">0.0%</span>`)}
+      <div class="mono" style="font-size:22px;color:#8f8e80;margin-top:20px;opacity:${ease(prog(t, 22.6, 23))}">tx ${FILL.slice(0, 18)}…${FILL.slice(-8)}</div></div></div>`;
+}
+
+// 7 · 23.8–27 · End card.
+function s7(t) {
+  if (t < 23.8) return "";
+  const k = ease(prog(t, 23.8, 24.4)), m = back(prog(t, 23.9, 24.6));
+  return `<div class="abs" style="inset:0;opacity:${k}">
+    <div style="position:absolute;left:50%;top:230px;transform:translateX(-50%) scale(${m})">${MARK(150)}</div>
+    <div class="c h" style="top:420px;font-size:170px">${words("We are live.", t, 24.0, .12)}</div>
+    <div class="c" style="top:630px;font-size:50px;font-weight:600;letter-spacing:-.03em;color:#cfcdc0">${words("Sell big. Don't crash the chart.", t, 24.5, .06)}</div>
+    <div class="c" style="top:780px;${pop(t, 25.2, .6)}"><span style="display:inline-block;padding:20px 44px;border-radius:999px;background:${Y};color:#0b0c09;font:800 44px Inter;letter-spacing:-.02em">$KERB · kerbtrade.xyz</span></div></div>`;
+}
+
+window.render = (t) => {
+  bg.innerHTML = background(t);
+  stage.innerHTML = s1(t) + s3(t) + s4(t) + s5(t) + s6(t) + s7(t) + s2(t);
+};
+window.ready = document.fonts.ready;
+const q = new URLSearchParams(location.search).get("t"); if (q) ready.then(() => render(+q));
+</script>
+</body>
+</html>
