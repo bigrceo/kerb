@@ -42,7 +42,7 @@ const foot = `<div class=foot><div class=l>kerbtrade.xyz</div></div>`;
 
 // Post 1600x900: lockup, eyebrow, two-beat title (second line in yellow), body, foot. Text block centred
 // between the lockup and the foot. An optional real screen on the right.
-const GRID = `<div style="position:absolute;inset:0;background:radial-gradient(70% 70% at 70% 40%,#1d2013,${INK})"></div><div style="position:absolute;inset:0;opacity:.06;background-image:linear-gradient(${Y} 1px,transparent 1px),linear-gradient(90deg,${Y} 1px,transparent 1px);background-size:80px 80px"></div><div class=kerbline style="height:10px;background:repeating-linear-gradient(90deg,${Y} 0 40px,transparent 40px 80px)"></div>`;
+const GRID = `<div style="position:absolute;inset:0;background:radial-gradient(70% 70% at 70% 40%,#1d2013,${INK})"></div><div class=haze></div><div class=vig></div><div class=kerbline style="height:10px;background:repeating-linear-gradient(90deg,${Y} 0 40px,transparent 40px 80px)"></div>`;
 function post(shot, eyebrow, plain, gold, body, side = "") {
   const w = side ? 820 : 1300;
   return `${shot === GRID ? GRID : bg(shot)}<div style="position:absolute;left:72px;top:60px">${lockup()}</div>
