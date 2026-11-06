@@ -36,9 +36,9 @@ h1 span{color:${Y}}
 `;
 const feather = (h) => `<img src="img/robinhood.svg" style="height:${h}px;width:auto;display:block">`;
 const lockup = (m = 40, wm = 36, x = 28, rh = 30, f = 34) =>
-  `<div class="lock" style="--wm:${wm}px;--x:${x}px;--rh:${rh}px"><div class="k">${MARK(m)}<div class="wm">Kerb</div></div><div class="x">×</div><div class="k">${feather(f)}<div class="rh">Robinhood Chain</div></div></div>`;
+  `<div class="lock" style="--wm:${wm}px;--x:${x}px;--rh:${rh}px"><div class="k">${MARK(m)}<div class="wm">Kerb</div></div></div>`;
 const bg = (shot, pos = "center") => `<div class=bg style="background-image:url(shots/${shot}.png);background-position:${pos}"></div><div class=haze></div><div class=vig></div>`;
-const foot = `<div class=foot><div class=l>kerbtrade.xyz</div><div class=r style="display:flex;align-items:center;gap:10px">${feather(20)} Robinhood Chain</div></div>`;
+const foot = `<div class=foot><div class=l>kerbtrade.xyz</div></div>`;
 
 // Post 1600x900: lockup, eyebrow, two-beat title (second line in yellow), body, foot. Text block centred
 // between the lockup and the foot. An optional real screen on the right.
