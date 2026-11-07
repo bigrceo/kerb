@@ -51,8 +51,7 @@ const ethChip = (label = "ETH") => `<i style="background:#e8e6f5;color:#22223a">
 
 function background(t) {
   const off = (t * 70) % 80;
-  let s = `<defs><radialGradient id="g" cx="50%" cy="38%" r="65%"><stop offset="0" stop-color="#1b1d12"/><stop offset="1" stop-color="#0b0c09"/></radialGradient></defs><rect width="1920" height="1080" fill="url(#g)"/>`;
-  s += `<g opacity=".045">${Array.from({ length: 25 }, (_, i) => `<path d="M${i * 80} 0V1080" stroke="${Y}"/>`).join("")}${Array.from({ length: 14 }, (_, i) => `<path d="M0 ${i * 80}H1920" stroke="${Y}"/>`).join("")}</g>`;
+  let s = `<defs><radialGradient id="g" cx="50%" cy="38%" r="65%"><stop offset="0" stop-color="#211f10"/><stop offset="1" stop-color="#0b0c09"/></radialGradient></defs><rect width="1920" height="1080" fill="url(#g)"/>`;
   s += `<g transform="translate(${-off} 0)">${Array.from({ length: 26 }, (_, i) => `<rect x="${i * 80}" y="1046" width="40" height="10" fill="${Y}"/>`).join("")}</g>`;
   return s;
 }
