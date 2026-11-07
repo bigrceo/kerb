@@ -49,9 +49,31 @@ const pop = (t, a, d = .5) => { const m = back(prog(t, a, a + d)); return `opaci
 const tokenChip = (label = "BAG") => `<i style="background:${Y};color:#0b0c09">${MARK(26)}</i>${label}`;
 const ethChip = (label = "ETH") => `<i style="background:#e8e6f5;color:#22223a">Ξ</i>${label}`;
 
+// Branded motion ground: the kerb profile (road low, pavement up) as giant drifting outlines in parallax,
+// a slow diagonal band of kerb paint, a light sweep, small kerb blocks rising, the stripe sliding at the bottom.
+const KP = "M2 22h12v-9h16v15H2z";
 function background(t) {
   const off = (t * 70) % 80;
-  let s = `<defs><radialGradient id="g" cx="50%" cy="38%" r="65%"><stop offset="0" stop-color="#211f10"/><stop offset="1" stop-color="#0b0c09"/></radialGradient></defs><rect width="1920" height="1080" fill="url(#g)"/>`;
+  let s = `<defs><radialGradient id="g" cx="${50 + Math.sin(t * .2) * 12}%" cy="${42 + Math.cos(t * .15) * 10}%" r="70%"><stop offset="0" stop-color="#241f0c"/><stop offset="1" stop-color="#0a0b08"/></radialGradient>
+    <linearGradient id="sw" x1="0" x2="1"><stop offset="0" stop-color="${Y}" stop-opacity="0"/><stop offset=".5" stop-color="${Y}" stop-opacity=".09"/><stop offset="1" stop-color="${Y}" stop-opacity="0"/></linearGradient>
+    <pattern id="paint" width="90" height="90" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><rect width="45" height="90" fill="${Y}"/></pattern></defs>
+    <rect width="1920" height="1080" fill="url(#g)"/>`;
+  // Giant kerb outlines, three depths.
+  [[1700, -40, 34, .10, .9], [-260, 420, 24, .07, -.6], [900, 650, 14, .05, .4]].forEach(([x, y, sc, op, sp], i) => {
+    const dx = Math.sin(t * .12 * sp + i) * 60 + t * 6 * sp, dy = Math.cos(t * .1 + i) * 30;
+    s += `<path d="${KP}" transform="translate(${x + dx} ${y + dy}) scale(${sc})" fill="none" stroke="${Y}" stroke-width="${1.6 / sc * 10}" opacity="${op}"/>`;
+  });
+  // Diagonal band of kerb paint crossing slowly.
+  const bx = -900 + ((t * 55) % 3200);
+  s += `<g opacity=".05" transform="translate(${bx} 0) skewX(-30)"><rect x="0" y="0" width="260" height="1080" fill="url(#paint)"/></g>`;
+  // Light sweep.
+  const lx = -800 + ((t * 260) % 3600);
+  s += `<rect x="${lx}" y="0" width="700" height="1080" fill="url(#sw)" transform="skewX(-20)"/>`;
+  // Small kerb blocks rising.
+  for (let i = 0; i < 14; i++) {
+    const x = (i * 157 + 80) % 1920, sp = 18 + (i * 7) % 22, y = 1100 - ((t * sp + i * 97) % 1250), r = (i % 2 ? 1 : -1) * t * 8;
+    s += `<path d="${KP}" transform="translate(${x} ${y}) rotate(${r} 16 16) scale(${.5 + (i % 3) * .3})" fill="${Y}" opacity="${.08 + (i % 4) * .03}"/>`;
+  }
   s += `<g transform="translate(${-off} 0)">${Array.from({ length: 26 }, (_, i) => `<rect x="${i * 80}" y="1046" width="40" height="10" fill="${Y}"/>`).join("")}</g>`;
   return s;
 }
