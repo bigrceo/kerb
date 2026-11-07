@@ -128,14 +128,14 @@ that's the whole fee schedule.
 we are live.
 the kerb desk is open on robinhood chain.
 $KERB
-CA: 
+CA: 0xb003594b135c07c6f9b63aefad6181a3c53b261b
 kerbtrade.xyz
 ```
 
 **T+10 · DEX PAID** — image `img/D1-dexpaid.png`. Nothing else in the text.
 ```
 dex screener paid ✅
-CA: 
+CA: 0xb003594b135c07c6f9b63aefad6181a3c53b261b
 ```
 
 ## Recurring after launch
