@@ -115,4 +115,8 @@ main { padding-top: 84px; }
 .ticket.bad .tk-h { background: rgba(255,107,87,.12); color: #ff8b7a; border-bottom: 1px solid rgba(255,107,87,.25); }
 .ticket.good .tk-h { background: rgba(242,194,48,.12); color: var(--color-accent); border-bottom: 1px solid rgba(242,194,48,.25); }
 .ticket .tk-n { font-family: var(--font-mono); font-weight: 700; font-size: 44px; letter-spacing: -.04em; line-height: 1; }
-.ticket.good::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: repeating-linear-gradient(90deg, var(--color-accent) 0 18px, transparent 18px 36px); }
+.ticket.good { background: radial-gradient(120% 90% at 50% 0%, rgba(242,194,48,.10), transparent 60%), #0d0e0a; border-color: rgba(242,194,48,.28); box-shadow: 0 30px 80px -40px rgba(242,194,48,.35); transition: border-color .3s, box-shadow .3s, transform .3s; }
+.ticket.good:hover { border-color: rgba(242,194,48,.6); transform: translateY(-2px); }
+.ticket.bad { background: radial-gradient(120% 90% at 50% 0%, rgba(255,107,87,.08), transparent 60%), #0d0e0a; border-color: rgba(255,107,87,.22); }
+.pulse { animation: pulse 1.8s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes pulse { 0% { opacity: .7; transform: scale(1); } 100% { opacity: 0; transform: scale(3.2); } }

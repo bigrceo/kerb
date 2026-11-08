@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div className="min-h-[calc(100vh-84px)] flex flex-col">
       <Ticker />
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-4 pt-20 pb-12">
         <span className="rise inline-block"><Mark size={72} /></span>
         <h1 style={{ animationDelay: "90ms" }} className="rise mt-6 text-6xl sm:text-8xl font-extrabold tracking-tighter">{BRAND.name}</h1>
         <p style={{ animationDelay: "180ms" }} className="rise mt-4 text-xl sm:text-2xl text-dim max-w-xl">{BRAND.tagline}</p>
