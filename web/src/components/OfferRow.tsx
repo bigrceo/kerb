@@ -30,8 +30,8 @@ export function OfferTable({ offers, empty }: { offers: Offer[]; empty: React.Re
               <td className={o.side === "ask" ? "text-down font-semibold" : "text-up font-semibold"}>{o.side === "ask" ? "Selling" : "Buying"}</td>
               <td className="font-semibold">{o.symbol}</td>
               <td className="num">{amount(tokens(o, left(o)))}</td>
-              <td className="num">{(Number(o.total) / 1e18).toLocaleString("en-US", { maximumFractionDigits: 6 })} ETH</td>
-              <td className="num text-dim">{unitPrice(o).toPrecision(3)} ETH</td>
+              <td className="num">{(Number(o.total) / 1e18).toLocaleString("en-US", { maximumFractionDigits: 6 })} SOL</td>
+              <td className="num text-dim">{unitPrice(o).toPrecision(3)} SOL</td>
               <td className="num text-dim">{o.taker === ZERO ? "Anyone" : short(o.taker)}</td>
               <td className="text-sm">
                 {status(o)}

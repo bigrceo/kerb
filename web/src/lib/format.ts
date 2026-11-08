@@ -24,7 +24,7 @@ export const pct = (f: number | null | undefined, digits = 1) =>
   f == null || !isFinite(f) ? "–" : `${f > 0 ? "+" : f < 0 ? "−" : ""}${Math.abs(f * 100).toFixed(digits)}%`;
 
 export const eth = (n: number | null | undefined, digits = 4) =>
-  n == null || !isFinite(n) ? "–" : `${n.toLocaleString("en-US", { maximumFractionDigits: digits })} ETH`;
+  n == null || !isFinite(n) ? "–" : `${n.toLocaleString("en-US", { maximumFractionDigits: digits })} SOL`;
 
 export const amount = (n: number) => {
   if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;

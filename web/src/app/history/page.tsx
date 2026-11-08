@@ -22,7 +22,7 @@ export default function History() {
         ) : (
           <table className="t min-w-[640px]">
             <thead>
-              <tr>{["Offer", "Side", "Coin", "Tokens", "ETH", "Taker fee", "Taker", "Tx"].map((h) => <th key={h} className="label">{h}</th>)}</tr>
+              <tr>{["Offer", "Side", "Coin", "Tokens", "SOL", "Taker fee", "Taker", "Tx"].map((h) => <th key={h} className="label">{h}</th>)}</tr>
             </thead>
             <tbody>
               {f.data.map((x) => {

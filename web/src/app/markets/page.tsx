@@ -51,7 +51,7 @@ export default function Markets() {
 
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Tile k="Open offers" v={String(open.length)} sub={`${open.filter((o) => o.side === "bid").length} bids, ${open.filter((o) => o.side === "ask").length} asks`} />
-        <Tile k="Settled volume" v={`${settled.toLocaleString("en-US", { maximumFractionDigits: 5 })} ETH`} sub={`${fills.data?.length ?? 0} fills, on chain`} />
+        <Tile k="Settled volume" v={`${settled.toLocaleString("en-US", { maximumFractionDigits: 5 })} SOL`} sub={`${fills.data?.length ?? 0} fills, on chain`} />
         <Tile k="Last fill" v={fills.data?.[0] ? `#${fills.data[0].id}` : "None yet"} sub={fills.data?.[0] ? `block ${fills.data[0].block}` : "the first fill shows here"} />
         <div className="card p-4 col-span-2 lg:col-span-1">
           <div className="flex justify-between">
@@ -65,7 +65,7 @@ export default function Markets() {
                   <Link href={`/offers/${o.id}`} className="hover:text-accent">
                     {o.side === "ask" ? "Sell" : "Buy"} {o.symbol}
                   </Link>
-                  <span className="num text-dim">{(Number(o.total) / 1e18).toFixed(5)} ETH</span>
+                  <span className="num text-dim">{(Number(o.total) / 1e18).toFixed(5)} SOL</span>
                 </li>
               ))}
             </ul>
@@ -126,7 +126,7 @@ export default function Markets() {
                     <td className="num">{price(c.priceUsd)}</td>
                     <td className={`num ${(c.change24h ?? 0) >= 0 ? "text-up" : "text-down"}`}>{c.change24h == null ? "–" : pct(c.change24h / 100, 2)}</td>
                     <td className="num">{usd(c.liquidityUsd)}</td>
-                    <td className="num text-dim">{bid ? `${bid.toPrecision(3)} ETH` : "–"}</td>
+                    <td className="num text-dim">{bid ? `${bid.toPrecision(3)} SOL` : "–"}</td>
                     <td className="text-right">
                       <Link
                         href={`/offers/new?token=${c.address}`}
@@ -147,7 +147,7 @@ export default function Markets() {
             {m.data?.error
               ? `Market read failed: ${m.data.error}`
               : m.data
-                ? `Read ${utc(m.data.readAt)} from Pons and Uniswap on Robinhood Chain, names and 24h from DEX Screener. ETH ${usd(m.data.ethUsd)}.`
+                ? `Read ${utc(m.data.readAt)} from Pons and Uniswap on Robinhood Chain, names and 24h from DEX Screener. SOL ${usd(m.data.ethUsd)}.`
                 : ""}
           </span>
           <span className="ml-auto flex gap-1">

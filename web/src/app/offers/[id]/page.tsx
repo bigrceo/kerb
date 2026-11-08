@@ -51,7 +51,7 @@ export default function OfferPage({ params }: { params: Promise<{ id: string }> 
           {o.side === "ask" ? "Selling" : "Buying"} {amount(tokens(o, o.amount))} {o.symbol}
         </h1>
         <p className="text-dim">
-          for {(Number(o.total) / 1e18).toLocaleString("en-US", { maximumFractionDigits: 8 })} ETH in all, {unitPrice(o).toPrecision(4)} ETH per token.
+          for {(Number(o.total) / 1e18).toLocaleString("en-US", { maximumFractionDigits: 8 })} SOL in all, {unitPrice(o).toPrecision(4)} SOL per token.
         </p>
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
           <D k="Maker" v={<a className="link num" href={deskAddr(o.maker)} target="_blank" rel="noreferrer">{short(o.maker)}</a>} />
@@ -94,9 +94,9 @@ export default function OfferPage({ params }: { params: Promise<{ id: string }> 
             )}
             <div className="text-sm space-y-1">
               <div className="flex justify-between"><span className="text-dim">Tokens</span><span className="num">{amount(n)} {o.symbol}</span></div>
-              <div className="flex justify-between"><span className="text-dim">Price</span><span className="num">{(Number(e) / 1e18).toFixed(8)} ETH</span></div>
-              <div className="flex justify-between"><span className="text-dim">Fee, 0.3%</span><span className="num">{(Number(f) / 1e18).toFixed(8)} ETH</span></div>
-              <div className="flex justify-between font-semibold"><span>{o.side === "ask" ? "You pay" : "You receive"}</span><span className="num">{(Number(o.side === "ask" ? e + f : e - f) / 1e18).toFixed(8)} ETH</span></div>
+              <div className="flex justify-between"><span className="text-dim">Price</span><span className="num">{(Number(e) / 1e18).toFixed(8)} SOL</span></div>
+              <div className="flex justify-between"><span className="text-dim">Fee, 0.3%</span><span className="num">{(Number(f) / 1e18).toFixed(8)} SOL</span></div>
+              <div className="flex justify-between font-semibold"><span>{o.side === "ask" ? "You pay" : "You receive"}</span><span className="num">{(Number(o.side === "ask" ? e + f : e - f) / 1e18).toFixed(8)} SOL</span></div>
             </div>
             {o.side === "bid" && (allow.data ?? 0n) < fillAmt ? (
               <button className="btn btn-a w-full" disabled={tx.busy} onClick={async () => { await tx.send({ address: o.token, abi: erc20, functionName: "approve", args: [DESK, fillAmt] }, "Approved"); allow.refetch(); }}>
@@ -109,7 +109,7 @@ export default function OfferPage({ params }: { params: Promise<{ id: string }> 
                   : { address: DESK, abi: deskAbi, functionName: "takeBid", args: [BigInt(o.id), fillAmt] }, "Settled");
                 after();
               }}>
-                {tx.busy ? tx.msg : o.side === "ask" ? "Pay and take the bag" : "Send the tokens, take the ETH"}
+                {tx.busy ? tx.msg : o.side === "ask" ? "Pay and take the bag" : "Send the tokens, take the SOL"}
               </button>
             )}
             <p className="text-xs text-dim">Both legs move in this one transaction, or neither does.</p>

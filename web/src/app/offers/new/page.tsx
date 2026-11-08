@@ -133,10 +133,10 @@ function Ticket() {
             )}
           </div>
           <div>
-            <label className="label" htmlFor="total">Total, ETH</label>
+            <label className="label" htmlFor="total">Total, SOL</label>
             <input id="total" className="input num mt-2" inputMode="decimal" value={totalStr} onChange={(e) => setTotal(e.target.value.replace(/[^0-9.]/g, ""))} />
             <p className="text-xs text-dim mt-1 num">
-              {t && q ? `${(t / q).toPrecision(4)} ETH per token` : "Starts at the market price"}
+              {t && q ? `${(t / q).toPrecision(4)} SOL per token` : "Starts at the market price"}
               {c?.priceEth && t && q ? `, ${pct(t / q / c.priceEth - 1)} vs market` : ""}
             </p>
           </div>
@@ -177,7 +177,7 @@ function Ticket() {
             </button>
           ) : (
             <button className="btn btn-a" disabled={!ready || tx.busy} onClick={post}>
-              {tx.busy ? tx.msg : side === "ask" ? "Lock the bag and post" : `Lock ${totalStr || 0} ETH and post`}
+              {tx.busy ? tx.msg : side === "ask" ? "Lock the bag and post" : `Lock ${totalStr || 0} SOL and post`}
             </button>
           )}
           {short && <p className="text-sm text-down self-center">You do not hold that many.</p>}
@@ -195,7 +195,7 @@ function Ticket() {
         <h2 className="font-bold">Before you sign</h2>
         <Row k={side === "ask" ? "You lock" : "You lock"} v={side === "ask" ? `${q.toLocaleString("en-US")} ${meta.data?.symbol ?? ""}` : eth(t, 6)} />
         <Row k={side === "ask" ? "You receive on a full fill" : "You receive on a full fill"} v={side === "ask" ? eth(t, 6) : `${q.toLocaleString("en-US")} ${meta.data?.symbol ?? ""}`} />
-        <Row k="Taker pays the fee" v={`${Number(FEE_BPS) / 100}% of the ETH leg`} />
+        <Row k="Taker pays the fee" v={`${Number(FEE_BPS) / 100}% of the SOL leg`} />
         <Row k="Your fee" v="None" />
         <div className="border-t border-line pt-4">
           <div className="label">Against the pools</div>
@@ -210,11 +210,11 @@ function Ticket() {
               )}
             </>
           ) : (
-            <p className="text-sm text-dim mt-2">{valid ? (c === null ? "Not a Pons coin with an ETH pool, so no comparison." : "Enter a size to compare.") : "Pick a coin."}</p>
+            <p className="text-sm text-dim mt-2">{valid ? (c === null ? "Not a Pons coin with an SOL pool, so no comparison." : "Enter a size to compare.") : "Pick a coin."}</p>
           )}
         </div>
         <p className="text-xs text-dim border-t border-line pt-4">
-          Your {side === "ask" ? "tokens" : "ETH"} sit in the desk contract until a fill, a cancel or the expiry. Cancel any time; after expiry anyone can send the escrow back to you, and only to you.
+          Your {side === "ask" ? "tokens" : "SOL"} sit in the desk contract until a fill, a cancel or the expiry. Cancel any time; after expiry anyone can send the escrow back to you, and only to you.
         </p>
       </aside>
     </div>

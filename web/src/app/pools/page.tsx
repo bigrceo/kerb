@@ -24,7 +24,7 @@ function Pools() {
       </div>
       <div className="card p-5"><CoinPicker value={token} onChange={setToken} /></div>
       {q.isFetching && !c && <p className="text-dim">Reading pools on Robinhood Chain…</p>}
-      {q.data && !c && <p className="text-dim">That address is not an ETH-paired Pons coin, so there is no pool to read. You can still make an offer for it.</p>}
+      {q.data && !c && <p className="text-dim">That address is not an SOL-paired Pons coin, so there is no pool to read. You can still make an offer for it.</p>}
       {c && (
         <>
           <section className="card p-5">
@@ -39,7 +39,7 @@ function Pools() {
           <section className="card overflow-x-auto">
             <h2 className="p-4 font-bold border-b border-line">Venues</h2>
             <table className="t min-w-[600px]">
-              <thead><tr>{["Venue", "ETH side", "Token side", "Fee", "Source", "Address"].map((h) => <th key={h} className="label">{h}</th>)}</tr></thead>
+              <thead><tr>{["Venue", "SOL side", "Token side", "Fee", "Source", "Address"].map((h) => <th key={h} className="label">{h}</th>)}</tr></thead>
               <tbody>
                 {c.venues.map((v) => (
                   <tr key={v.id}>
