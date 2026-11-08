@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 import { Mark } from "@/components/Logo";
+import { HeroDemo } from "@/components/HeroDemo";
+import { Ticker } from "@/components/Ticker";
 
 export default function Home() {
   return (
     <div className="min-h-[calc(100vh-84px)] flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-16">
+      <Ticker />
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
         <span className="rise inline-block"><Mark size={72} /></span>
         <h1 style={{ animationDelay: "90ms" }} className="rise mt-6 text-6xl sm:text-8xl font-extrabold tracking-tighter">{BRAND.name}</h1>
         <p style={{ animationDelay: "180ms" }} className="rise mt-4 text-xl sm:text-2xl text-dim max-w-xl">{BRAND.tagline}</p>
@@ -18,6 +21,7 @@ export default function Home() {
             How it works
           </Link>
         </div>
+        <HeroDemo />
         {BRAND.tokenAddress && (
           <p style={{ animationDelay: "450ms" }} className="rise mt-10 text-sm text-dim">
             <span className="label mr-2">${BRAND.ticker}</span>

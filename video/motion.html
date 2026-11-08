@@ -47,7 +47,7 @@ function words(text, t, start, step = .08, cls = {}) {
 }
 const pop = (t, a, d = .5) => { const m = back(prog(t, a, a + d)); return `opacity:${ease(prog(t, a, a + d * .6))};transform:scale(${lerp(.5, 1, m)})`; };
 const tokenChip = (label = "BAG") => `<i style="background:${Y};color:#0b0c09">${MARK(26)}</i>${label}`;
-const ethChip = (label = "ETH") => `<i style="background:#e8e6f5;color:#22223a">Ξ</i>${label}`;
+const ethChip = (label = "SOL") => `<i style="background:linear-gradient(135deg,#9945ff,#14f195);color:#0b0c09">◎</i>${label}`;
 
 // Branded motion ground: the kerb profile (road low, pavement up) as giant drifting outlines in parallax,
 // a slow diagonal band of kerb paint, a light sweep, small kerb blocks rising, the stripe sliding at the bottom.
@@ -183,13 +183,13 @@ function s6(t) {
   const e = ease(prog(t, 20.8, 21.5));
   const row = (a, l, r) => `<div style="display:flex;justify-content:space-between;font-size:34px;padding:22px 0;border-top:1px solid rgba(255,255,255,.08);opacity:${ease(prog(t, a, a + .4))};transform:translateX(${(1 - ease(prog(t, a, a + .4))) * 30}px)"><span class="dim" style="font-weight:500">${l}</span><span style="font-weight:700">${r}</span></div>`;
   return `<div class="abs" style="inset:0;opacity:${k}">
-    <div class="c h" style="top:110px;font-size:80px">${words("Already working. On mainnet.", t, 20.6, .07, { 2: "acc", 3: "acc" })}</div>
+    <div class="c h" style="top:110px;font-size:80px">${words("Both sides sign. One transaction.", t, 20.6, .07, { 3: "acc", 4: "acc" })}</div>
     <div class="card" style="left:510px;top:290px;width:900px;padding:44px 56px;opacity:${e};transform:translateY(${(1 - e) * 80}px) scale(${lerp(.95, 1, e)})">
-      <div style="display:flex;justify-content:space-between;align-items:center"><div class="eye" style="color:#8f8e80">Robinhood Chain · fill #0</div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><div class="eye" style="color:#8f8e80">Kerb deal · Solana</div>
       <div style="${pop(t, 21.4)};padding:10px 22px;border-radius:999px;background:rgba(111,220,132,.14);color:${GRN};font:700 28px Inter">✓ Success</div></div>
       <div style="height:26px"></div>
-      ${row(21.6, "Buyer got", "1.086 NOVAAI")}${row(21.85, "Seller got", "0.0002 ETH")}${row(22.1, "Transactions", "1")}${row(22.35, "Chart move", `<span class="grn">0.0%</span>`)}
-      <div class="mono" style="font-size:22px;color:#8f8e80;margin-top:20px;opacity:${ease(prog(t, 22.6, 23))}">tx ${FILL.slice(0, 18)}…${FILL.slice(-8)}</div></div></div>`;
+      ${row(21.6, "1. Seller", "signs the deal")}${row(21.85, "2. Link", "sent to the buyer")}${row(22.1, "3. Buyer", "signs and settles")}${row(22.35, "Chart move", `<span class="grn">0.0%</span>`)}
+      <div style="font-size:24px;color:#8f8e80;margin-top:20px;opacity:${ease(prog(t, 22.6, 23))}">No program. No custody. Wallet to wallet.</div>`;
 }
 
 // 7 · 23.8–27 · End card.

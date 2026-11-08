@@ -101,3 +101,9 @@ main { padding-top: 84px; }
 .btn { transition: opacity .15s, background .15s, transform .3s var(--q), box-shadow .3s var(--q); }
 .btn-a:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 30px -10px rgba(242,194,48,.6); }
 @media (prefers-reduced-motion: reduce) { .rise, .kline { animation: none; } .rv { opacity: 1; transform: none; filter: none; transition: none; } }
+
+/* Ticker tape: two copies of the row slide left forever. */
+.tape-in { display: inline-flex; width: max-content; animation: tape 60s linear infinite; }
+.tape:hover .tape-in { animation-play-state: paused; }
+@keyframes tape { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .tape-in { animation: none; } }
