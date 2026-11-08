@@ -1,74 +1,97 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = { title: "Docs" };
+export const metadata: Metadata = { title: "How it works" };
 
-const S = [
-  ["what", "What this is"],
-  ["why", "Why not the pool"],
-  ["how", "How a deal works"],
-  ["sign", "What you sign"],
-  ["funds", "Where funds sit"],
-  ["fees", "Fees"],
-  ["trust", "Who you trust"],
-  ["risks", "Risks"],
+const STEPS = [
+  ["1", "You set the deal", "Pick the coin, how many, your price in SOL, and who gets to buy. Sign once with your wallet."],
+  ["2", "You send a link", "Kerb gives you a link. Send it to your buyer: DM, Telegram, anywhere."],
+  ["3", "They accept", "Your buyer opens the link, checks the deal and signs. The coins and the SOL swap in one go. Done."],
+] as const;
+
+const FAQ = [
+  ["Why not just sell on the chart?", "Selling a big bag into a pool pushes the price down for everyone, and you get less the more you sell. On Kerb you sell to one person at a fixed price, so the chart does not move and you get exactly what you agreed."],
+  ["Can someone run off with my coins?", "No. Nothing leaves your wallet until your buyer accepts, and then both sides move in the same transaction: you get the SOL at the exact moment they get the coins. If anything is missing, nothing moves at all."],
+  ["Does Kerb hold my money?", "Never. Your coins stay in your wallet the whole time. Kerb only prepares the deal; your wallet signs it."],
+  ["What does it cost?", "0.3% of the SOL, paid by the buyer when they accept (on a bid, taken from the SOL the seller receives). Plus the usual tiny Solana network fee. Your first deal also sets aside about 0.0015 SOL in your own account so your deals stay valid for days; it stays yours."],
+  ["Can I change my mind?", "Yes. Hit “Cancel every deal I have signed” on the Make a deal page and all your links stop working at once."],
+  ["Can anyone take my deal?", "No. Only the one wallet you name can accept it. Someone else opening the link just sees the terms."],
+  ["What should I check before accepting?", "The coin address (fakes can copy any name: compare it on Solscan) and the price. Kerb shows you how it compares to the market."],
 ] as const;
 
 export default function Docs() {
   return (
-    <div className="wrap py-10 grid lg:grid-cols-[200px_1fr] gap-10">
-      <nav className="hidden lg:block sticky top-28 self-start space-y-2 text-sm">
-        {S.map(([id, t]) => <a key={id} href={`#${id}`} className="block text-dim hover:text-fg">{t}</a>)}
-      </nav>
-      <article className="max-w-2xl space-y-10 leading-relaxed">
-        <header>
-          <h1 className="text-4xl font-extrabold tracking-tight">How {BRAND.name} works</h1>
-          <p className="text-dim mt-3">What a deal does, what it asks you to trust, and what can go wrong. {BRAND.origin}</p>
-        </header>
-        <section id="what" className="space-y-3">
-          <h2 className="text-2xl font-bold">What this is</h2>
-          <p>{BRAND.name} lets two wallets agree a price on a whole bag of a Solana token and settle it in one transaction. You sell a bag for SOL, or bid SOL for one, to one named wallet.</p>
-        </section>
-        <section id="why" className="space-y-3">
-          <h2 className="text-2xl font-bold">Why not the pool</h2>
-          <p>Most coins live in thin pools: a pump.fun bonding curve, then a PumpSwap pool. A pool prices each trade on a curve, so a big sale pushes the price down for everyone and shows on the chart. A deal between two wallets touches no pool, so the chart does not move.</p>
-        </section>
-        <section id="how" className="space-y-3">
-          <h2 className="text-2xl font-bold">How a deal works</h2>
-          <ol className="list-decimal pl-5 space-y-2">
-            <li>The maker picks the coin, the size, the price in SOL and the one wallet that can settle. Kerb builds the swap: the tokens one way, the SOL the other, the fee to the treasury.</li>
-            <li>The maker signs their part and gets a link. The link carries the terms and the signed transaction, in the part of the URL that is never sent to a server.</li>
-            <li>The other wallet opens the link. Kerb rebuilds the swap from the stated terms and refuses the link unless the signed transaction is exactly that swap. They sign as fee payer and send it.</li>
-            <li>Both legs move in that one transaction, or neither does.</li>
-          </ol>
-        </section>
-        <section id="sign" className="space-y-3">
-          <h2 className="text-2xl font-bold">What you sign</h2>
-          <p>Plain Solana instructions: a System Program nonce advance, an idempotent token account creation, one token transfer and one or two SOL transfers. No program of ours, no approval, no delegate. Your wallet shows each one before you sign.</p>
-          <p>Deals run on the maker&apos;s own durable nonce account, set up once (about 0.0015 SOL of rent, the maker&apos;s, closable any time), so a signed deal does not expire after a minute. Settling a deal moves the nonce, so a link works once.</p>
-        </section>
-        <section id="funds" className="space-y-3">
-          <h2 className="text-2xl font-bold">Where funds sit</h2>
-          <p>In your wallet. There is no escrow: nothing leaves until the deal settles. If the maker no longer holds the tokens or the SOL by then, the transaction fails and nothing moves.</p>
-          <p>To cancel, the maker advances their nonce from the Make a deal page. Every deal they signed before becomes void at once.</p>
-        </section>
-        <section id="fees" className="space-y-3">
-          <h2 className="text-2xl font-bold">Fees</h2>
-          <p>0.3% of the SOL leg goes to the {BRAND.name} treasury inside the same transaction. On a sale the buyer pays it on top; on a bid it comes out of the SOL the seller receives. Plus the Solana network fee, paid by whoever settles.</p>
-        </section>
-        <section id="trust" className="space-y-3">
-          <h2 className="text-2xl font-bold">Who you trust</h2>
-          <p>Nobody holds your funds. You trust your wallet to show you what you sign, and this page to build the swap it says. The link check above means a tampered link is refused before you can sign it.</p>
-        </section>
-        <section id="risks" className="space-y-3">
-          <h2 className="text-2xl font-bold">Risks</h2>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><b>Check the coin address.</b> Anyone can make a token with any name. The deal page shows the mint; check it on Solscan.</li>
-            <li><b>Good until is not enforced on chain.</b> The app refuses expired deals, but a signed transaction stays valid until it settles or the maker cancels. Cancel deals you no longer want.</li>
-            <li><b>Price.</b> A deal settles at the price in it, whatever the market does after you sign.</li>
+    <div className="wrap py-12 max-w-4xl space-y-16">
+      <header className="text-center space-y-4">
+        <div className="label">How it works</div>
+        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight">Sell your bag without wrecking the chart.</h1>
+        <p className="text-dim text-lg max-w-2xl mx-auto">
+          {BRAND.name} lets you sell a big bag to one buyer, at your price, in one transaction. No pool, no price crash, no middleman.
+        </p>
+      </header>
+
+      <section className="grid sm:grid-cols-3 gap-3">
+        {STEPS.map(([n, t, d]) => (
+          <div key={n} className="ticket good p-6 pb-8">
+            <div className="num text-accent text-sm">STEP {n}</div>
+            <h2 className="text-2xl font-bold mt-3">{t}</h2>
+            <p className="text-dim mt-2">{d}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid sm:grid-cols-2 gap-3">
+        <div className="ticket bad p-6">
+          <div className="num text-down text-sm">THE USUAL WAY</div>
+          <h3 className="text-xl font-bold mt-3">Dump into the pool</h3>
+          <ul className="text-dim mt-3 space-y-1">
+            <li>✕ The price drops while you sell</li>
+            <li>✕ You get less than the bag is worth</li>
+            <li>✕ Everyone sees a big red candle</li>
           </ul>
-        </section>
-      </article>
+        </div>
+        <div className="ticket good p-6 pb-8">
+          <div className="num text-accent text-sm">WITH KERB</div>
+          <h3 className="text-xl font-bold mt-3">Sell to one buyer</h3>
+          <ul className="text-dim mt-3 space-y-1">
+            <li>✓ You pick the price</li>
+            <li>✓ You get exactly that</li>
+            <li>✓ The chart does not move</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-3xl font-extrabold tracking-tight">Questions</h2>
+        {FAQ.map(([q, a]) => (
+          <details key={q} className="card p-5 group">
+            <summary className="cursor-pointer font-semibold text-lg list-none flex justify-between gap-4">
+              {q}
+              <span className="text-dim group-open:rotate-45 transition-transform">+</span>
+            </summary>
+            <p className="text-dim mt-3">{a}</p>
+          </details>
+        ))}
+      </section>
+
+      <section className="text-center space-y-4">
+        <h2 className="text-3xl font-extrabold tracking-tight">Ready?</h2>
+        <div className="flex flex-wrap gap-3 justify-center">
+          <Link href="/deal/new" className="btn btn-a px-8">Make a deal</Link>
+          <Link href="/markets" className="btn btn-o">See what a sale does to the chart</Link>
+        </div>
+      </section>
+
+      <details className="card p-5 text-sm">
+        <summary className="cursor-pointer font-semibold">For the technical: what you actually sign</summary>
+        <div className="text-dim mt-3 space-y-3">
+          <p>A deal is one Solana transaction signed by both sides: a System Program nonce advance, an idempotent token account creation, one token transfer and one or two SOL transfers (the price, and the 0.3% fee to the treasury). No program of ours, no approval, no delegate.</p>
+          <p>The maker signs first; the link carries the terms and that signed transaction in the URL fragment, which is never sent to a server. The buyer&apos;s page rebuilds the transaction from the terms and refuses the link unless the signed message is exactly that swap.</p>
+          <p>Deals run on the maker&apos;s own durable nonce account, so they do not expire after a minute. Settling moves the nonce (a link works once); cancelling advances it (every earlier link dies). The good-until date is checked by the app, not on chain.</p>
+          <p>Open source: <a className="link" href={BRAND.github} target="_blank" rel="noreferrer">{BRAND.github.replace("https://", "")}</a></p>
+        </div>
+      </details>
     </div>
   );
 }

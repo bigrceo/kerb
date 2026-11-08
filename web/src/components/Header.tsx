@@ -28,7 +28,7 @@ const MENUS: Record<"trade", { label: string; rows: Row[]; cards: Card[] }> = {
     rows: [
       ["plus", "Make a deal", "Sell a bag or bid for one, to one wallet, at your price.", "/deal/new"],
       ["list", "Open a deal link", "Got a Kerb link? Check the terms and settle it.", "/deal"],
-      ["book", "How it works", "One transaction signed by both sides. No program, no custody.", "/docs"],
+      ["book", "How it works", "Three steps, in plain words. Your coins never leave your wallet early.", "/docs"],
     ],
     cards: [
       ["Sell off the chart", "One buyer, one transaction. The pool never sees it.", "/deal/new", "flat"],
