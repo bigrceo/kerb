@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { Connect } from "@/components/Header";
 import { CoinTag } from "@/components/CoinTag";
 import { useSolCoin } from "@/lib/sol/useCoin";
@@ -63,8 +63,9 @@ function Ticket() {
       const m = await mintInfo(connection, mint!);
       let bal = 0n;
       if (publicKey) {
-        const b = await connection.getTokenAccountBalance(getAssociatedTokenAddressSync(mint!, publicKey, true, m.tokenProgram)).catch(() => null);
-        bal = b ? BigInt(b.value.amount) : 0n;
+        // getAccount reads the raw account: free RPCs refuse getTokenAccountBalance.
+        const b = await getAccount(connection, getAssociatedTokenAddressSync(mint!, publicKey, true, m.tokenProgram), "confirmed", m.tokenProgram).catch(() => null);
+        bal = b ? b.amount : 0n;
       }
       return { ...m, bal };
     },
