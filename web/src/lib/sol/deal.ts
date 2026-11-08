@@ -29,7 +29,7 @@ import {
 } from "@solana/spl-token";
 
 export const FEE_BPS = 30n;
-export const TREASURY = new PublicKey(process.env.NEXT_PUBLIC_SOL_TREASURY || "637Z8AtLC7J4FAKnqevmsYu3CNu7pwNpcCqkVRo3bqLL");
+export const TREASURY = new PublicKey(process.env.NEXT_PUBLIC_SOL_TREASURY || "CwH8RKUttC69h6Tu2qjVq11iVcLYXpDNGyYEhfTj9irw");
 export const RPC = process.env.NEXT_PUBLIC_SOL_RPC || "https://api.mainnet-beta.solana.com";
 export const LAMPORTS = 1_000_000_000;
 
