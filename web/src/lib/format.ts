@@ -44,3 +44,6 @@ export const ago = (ms: number) => {
 export const utc = (ms: number) => new Date(ms).toISOString().slice(11, 19) + " UTC";
 
 export const until = (ms: number) => ago(2 * Date.now() - ms).replace(" ago", "");
+
+/** SOL amounts without scientific notation: 0.00000003115. */
+export const sol = (n: number) => (n >= 0.0001 ? Number(n.toPrecision(4)).toString() : n.toFixed(12).replace(/0+$/, "").replace(/\.$/, ""));

@@ -7,7 +7,11 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { Connect } from "@/components/Header";
-import { LAMPORTS, buildDeal, cancelAll, encodeDeal, feeOf, mintInfo, nonceSetup, readNonce, type Terms } from "@/lib/sol/deal";
+import { CoinTag } from "@/components/CoinTag";
+import { useSolCoin } from "@/lib/sol/useCoin";
+import { sellImpact } from "@/lib/sol/market";
+import { pct, sol, usd } from "@/lib/format";
+import { LAMPORTS, buildDeal, cancelAll, confirm, encodeDeal, feeOf, mintInfo, nonceSetup, readNonce, type Terms } from "@/lib/sol/deal";
 
 const DURATIONS = [
   ["1 hour", 3600],
@@ -51,6 +55,7 @@ function Ticket() {
   const [busy, setBusy] = useState(false);
 
   const mint = key(mintS), taker = key(takerS);
+  const coin = useSolCoin(mint?.toBase58()).data;
   const meta = useQuery({
     queryKey: ["mint", mintS, publicKey?.toBase58()],
     enabled: !!mint,
@@ -91,7 +96,7 @@ function Ticket() {
       const signed = await signTransaction(tx);
       setMsg("Settling");
       const sig = await connection.sendRawTransaction(signed.serialize());
-      await connection.confirmTransaction(sig, "confirmed");
+      await confirm(connection, sig);
       store(`kerb-nonce-${publicKey.toBase58()}`, n.toBase58());
       setNonce(n);
       setMsg("Ready. You can sign deals now.");
@@ -134,7 +139,7 @@ function Ticket() {
     try {
       const signed = await signTransaction(await cancelAll(connection, publicKey, nonce));
       const sig = await connection.sendRawTransaction(signed.serialize());
-      await connection.confirmTransaction(sig, "confirmed");
+      await confirm(connection, sig);
       setLink("");
       setMsg("Every deal you signed before is now void.");
     } catch (e) {
@@ -159,6 +164,12 @@ function Ticket() {
           <input id="mint" className="input num mt-2" placeholder="Mint address" value={mintS} onChange={(e) => setMint(e.target.value.trim())} />
           {mintS && !mint && <p className="text-xs text-down mt-1">Not an address</p>}
           {mint && meta.isError && <p className="text-xs text-down mt-1">No such coin on Solana</p>}
+          {mint && meta.data && (
+            <p className="text-sm mt-2 flex flex-wrap gap-x-3 items-center">
+              <CoinTag coin={coin} mint={mint.toBase58()} />
+              {coin && <span className="text-dim num">{usd(coin.priceUsd)} · mcap {usd(coin.mcap)}</span>}
+            </p>
+          )}
           {meta.data && publicKey && (
             <p className="text-xs text-dim mt-2 num">You hold {(Number(meta.data.bal) / 10 ** d).toLocaleString("en-US")}</p>
           )}
@@ -175,7 +186,7 @@ function Ticket() {
           <div>
             <label className="label" htmlFor="total">Total, SOL</label>
             <input id="total" className="input num mt-2" inputMode="decimal" value={total} onChange={(e) => setTotal(e.target.value.replace(/[^0-9.]/g, ""))} />
-            <p className="text-xs text-dim mt-1 num">{qty && total ? `${(Number(total) / Number(qty)).toPrecision(4)} SOL per token` : " "}</p>
+            <p className="text-xs text-dim mt-1 num">{qty && total ? `${sol(Number(total) / Number(qty))} SOL per token${coin?.priceSol ? `, ${pct(Number(total) / Number(qty) / coin.priceSol - 1)} vs market` : ""}` : coin?.priceSol ? "Market: " + sol(coin.priceSol) + " SOL per token" : " "}</p>
           </div>
         </div>
 
@@ -228,6 +239,15 @@ function Ticket() {
         <Row k={side === "ask" ? "You send on settle" : "You pay on settle"} v={side === "ask" ? `${qty || 0} tokens` : `${total || 0} SOL`} />
         <Row k="You receive" v={side === "ask" ? `${total || 0} SOL` : `${qty || 0} tokens`} />
         <Row k={side === "ask" ? "Buyer pays the fee" : "Fee, from the SOL leg"} v={`${(Number(fee) / LAMPORTS).toFixed(6)} SOL (0.3%)`} />
+        {coin && Number(qty) > 0 && (() => {
+          const r = sellImpact(coin, Number(qty) * coin.priceUsd);
+          return r ? (
+            <div className="border-t border-line pt-4 text-sm">
+              <div className="label">Against the pool</div>
+              <p className="mt-2">Selling this bag into the pool would move the chart <span className="text-down num font-semibold">{pct(r.chart)}</span> and pay about <span className="num font-semibold">{r.solOut.toFixed(4)} SOL</span>. Here: 0.0%.</p>
+            </div>
+          ) : null;
+        })()}
         <p className="text-xs text-dim border-t border-line pt-4">
           No escrow. Your {side === "ask" ? "tokens" : "SOL"} stay in your wallet until the {side === "ask" ? "buyer" : "seller"} settles: then both legs move in one
           transaction, or neither does. If they are gone by then, the deal just fails. Cancel every signed deal at any time.

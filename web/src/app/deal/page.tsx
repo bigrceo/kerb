@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Connect } from "@/components/Header";
-import { LAMPORTS, decodeDeal, feeOf, readNonce } from "@/lib/sol/deal";
+import { CoinTag } from "@/components/CoinTag";
+import { useSolCoin } from "@/lib/sol/useCoin";
+import { pct, sol as fmtSol, usd } from "@/lib/format";
+import { LAMPORTS, confirm, decodeDeal, feeOf, readNonce } from "@/lib/sol/deal";
 
 const solscan = (k: string, kind: "account" | "tx" | "token" = "account") => `https://solscan.io/${kind}/${k}`;
 const short = (s: string) => `${s.slice(0, 4)}…${s.slice(-4)}`;
@@ -45,6 +48,7 @@ function Settle({ code }: { code: string }) {
     refetchInterval: 15_000,
     queryFn: () => readNonce(connection, parsed!.terms.nonce),
   });
+  const coin = useSolCoin(parsed?.terms.mint.toBase58()).data;
   if (!parsed || !parsed.valid)
     return <div className="wrap py-8"><h1 className="text-2xl font-bold">This link is broken or has been tampered with.</h1><p className="text-dim mt-2">Do not sign anything from it. Ask the sender for a new one.</p></div>;
 
@@ -63,7 +67,7 @@ function Settle({ code }: { code: string }) {
       const signed = await signTransaction(tx);
       setState({ busy: true, msg: "Settling" });
       const sig = await connection.sendRawTransaction(signed.serialize());
-      await connection.confirmTransaction(sig, "confirmed");
+      await confirm(connection, sig);
       setState({ sig, msg: "Settled. Both legs moved in this one transaction." });
     } catch (e) {
       setState({ msg: (e as Error).message || "Failed. Nothing moved." });
@@ -75,11 +79,14 @@ function Settle({ code }: { code: string }) {
       <section className="card p-6 space-y-4 min-w-0">
         <div className="label">Kerb deal · {status}</div>
         <h1 className="text-3xl font-extrabold tracking-tight">
-          {t.side === "ask" ? "Buy" : "Sell"} {tokens.toLocaleString("en-US")} tokens for {sol.toLocaleString("en-US", { maximumFractionDigits: 9 })} SOL
+          {t.side === "ask" ? "Buy" : "Sell"} {tokens.toLocaleString("en-US")} {coin ? `$${coin.symbol}` : "tokens"} for {sol.toLocaleString("en-US", { maximumFractionDigits: 9 })} SOL
         </h1>
-        <p className="text-dim">{(sol / tokens).toPrecision(4)} SOL per token. One transaction, wallet to wallet; no pool is touched.</p>
+        <p className="text-dim">
+          {fmtSol(sol / tokens)} SOL per token
+          {coin?.priceSol ? <>, <span className={(sol / tokens / coin.priceSol - 1 > 0) === (t.side === "ask") ? "text-down" : "text-up"}>{pct(sol / tokens / coin.priceSol - 1)} vs market</span> ({usd(coin.priceUsd * tokens)} at market)</> : null}. One transaction, wallet to wallet; no pool is touched.
+        </p>
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
-          <D k="Coin" v={<a className="link num" href={solscan(t.mint.toBase58(), "token")} target="_blank" rel="noreferrer">{short(t.mint.toBase58())}</a>} />
+          <D k="Coin" v={<span className="flex flex-col gap-1"><CoinTag coin={coin} mint={t.mint.toBase58()} /><a className="link num text-xs" href={solscan(t.mint.toBase58(), "token")} target="_blank" rel="noreferrer">{t.mint.toBase58()}</a></span>} />
           <D k={t.side === "ask" ? "Seller" : "Buyer"} v={<a className="link num" href={solscan(t.maker.toBase58())} target="_blank" rel="noreferrer">{short(t.maker.toBase58())}</a>} />
           <D k="Only for" v={<span className="num">{short(t.taker.toBase58())}</span>} />
           <D k="Good until" v={new Date(t.expiry * 1000).toUTCString().replace("GMT", "UTC")} />

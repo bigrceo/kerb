@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   turbopack: { root: path.resolve(process.cwd()) },
   // The EVM desk pages are gone on Solana: old links land on Make a deal.
   async redirects() {
-    return ["offers", "positions", "wallets", "markets", "pools", "history"].map((p) => ({ source: `/${p}/:rest*`, destination: "/deal/new", permanent: false }));
+    return ["offers", "positions", "wallets", "pools", "history"].map((p) => ({ source: `/${p}/:rest*`, destination: "/deal/new", permanent: false }));
   },
 };
 

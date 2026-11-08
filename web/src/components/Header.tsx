@@ -32,7 +32,7 @@ const MENUS: Record<"trade", { label: string; rows: Row[]; cards: Card[] }> = {
     ],
     cards: [
       ["Sell off the chart", "One buyer, one transaction. The pool never sees it.", "/deal/new", "flat"],
-      ["Bid for a bag", "Name the wallet and the price you pay.", "/deal/new?side=bid", "bars"],
+      ["Sale simulator", "What the same bag would do to the chart in the pool.", "/markets", "bars"],
     ],
   },
 };
@@ -129,7 +129,7 @@ export function Header() {
   const hover = () => matchMedia("(hover: hover)").matches;
   // Markets and Docs have their own top links, so they do not light up the Data menu too.
   const inMenu = (k: keyof typeof MENUS) =>
-    !path.startsWith("/docs") && MENUS[k].rows.some((r) => path.startsWith(r[3]));
+    !path.startsWith("/docs") && !path.startsWith("/markets") && MENUS[k].rows.some((r) => path.startsWith(r[3]));
 
   return (
     <>
@@ -157,6 +157,9 @@ export function Header() {
                   <Chev />
                 </button>
               ))}
+              <Link href="/markets" className={path.startsWith("/markets") ? "on" : ""} onMouseEnter={() => open(null)}>
+                Markets
+              </Link>
               <Link href="/docs" className={path.startsWith("/docs") ? "on" : ""} onMouseEnter={() => open(null)}>
                 Docs
               </Link>
@@ -219,7 +222,7 @@ export function Header() {
           ))}
           <div className="mlist" inert={!mobile}>
             <div>
-              {MENUS.trade.rows.map(([, t, , h]) => (
+              {[...MENUS.trade.rows, ["chart", "Markets", "", "/markets"] as Row].map(([, t, , h]) => (
                 <Link key={h} href={h}>
                   {t}
                   <span>↗</span>

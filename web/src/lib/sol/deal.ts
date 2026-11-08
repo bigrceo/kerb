@@ -30,7 +30,7 @@ import {
 
 export const FEE_BPS = 30n;
 export const TREASURY = new PublicKey(process.env.NEXT_PUBLIC_SOL_TREASURY || "CwH8RKUttC69h6Tu2qjVq11iVcLYXpDNGyYEhfTj9irw");
-export const RPC = process.env.NEXT_PUBLIC_SOL_RPC || "https://api.mainnet-beta.solana.com";
+export const RPC = process.env.NEXT_PUBLIC_SOL_RPC || "https://solana-rpc.publicnode.com";
 export const LAMPORTS = 1_000_000_000;
 
 export type Terms = {
@@ -171,4 +171,16 @@ export function decodeDeal(s: string) {
     sigOk = tx.verifySignatures(false);
   } catch {}
   return { terms: t, tx, valid: same && !!makerSig && sigOk };
+}
+
+/** Waits for a signature by polling (no websocket: free RPCs often refuse them). Throws if it failed on chain. */
+export async function confirm(c: Connection, sig: string, timeoutMs = 90_000) {
+  const end = Date.now() + timeoutMs;
+  while (Date.now() < end) {
+    const s = (await c.getSignatureStatuses([sig])).value[0];
+    if (s?.err) throw new Error("The transaction failed on chain. Nothing moved.");
+    if (s?.confirmationStatus === "confirmed" || s?.confirmationStatus === "finalized") return;
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+  throw new Error("Not confirmed yet. Check it on Solscan before trying again.");
 }
