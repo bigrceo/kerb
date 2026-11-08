@@ -76,7 +76,7 @@ export function Simulator({ coin, ethUsd, readAt }: { coin?: Coin; ethUsd: numbe
           <Bars fall={fall} />
           <p className="text-xs text-dim mt-3">
             {coin
-              ? `${coin.venues.length} venue${coin.venues.length === 1 ? "" : "s"} read ${readAt ? utc(readAt) : ""}. ${exact ? "All read on chain." : "Pools not launched on Pons are modelled from DexScreener liquidity, so treat them as an estimate."} `
+              ? `${coin.venues.length} venue${coin.venues.length === 1 ? "" : "s"} read ${readAt ? utc(readAt) : ""}. ${exact ? "All read on chain." : "Pools not launched on pump.fun are modelled from DexScreener liquidity, so treat them as an estimate."} `
               : "Loading the pools… "}
             {coin && (
               <Link className="link" href={`/pools?token=${coin.address}`}>

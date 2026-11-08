@@ -28,10 +28,7 @@ export function Footer() {
         </a>
         <span className="ml-auto inline-flex items-center gap-4">
           <span className="label">Data</span>
-          <img src="/brands/pons.jpg" alt="Pons" width={18} height={18} className="rounded-full" title="Pons" />
-          <img src="/brands/uniswap.png" alt="Uniswap" width={18} height={18} title="Uniswap" />
           <img src="/brands/dexscreener.png" alt="DEX Screener" width={18} height={18} className="rounded" title="DEX Screener" />
-          <img src="/brands/blockscout.png" alt="Blockscout" width={18} height={18} title="Blockscout" />
         </span>
       </div>
     </footer>

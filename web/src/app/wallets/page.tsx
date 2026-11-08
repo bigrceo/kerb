@@ -21,7 +21,7 @@ function Wallets() {
     <div className="wrap py-8 space-y-5">
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight">Wallets</h1>
-        <p className="text-dim mt-1 max-w-2xl">The biggest holders of a coin, from Blockscout. Want a bag that is not for sale? Make its holder a private offer.</p>
+        <p className="text-dim mt-1 max-w-2xl">The biggest holders of a coin, from Solscan. Want a bag that is not for sale? Make its holder a private offer.</p>
       </div>
       <div className="card p-5"><CoinPicker value={token} onChange={setToken} /></div>
       {ok && (

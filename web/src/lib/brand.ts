@@ -10,7 +10,7 @@ export const BRAND = {
   x: "https://x.com/kerbotc",
   tagline: "Trade the bag off the chart.",
   pitch:
-    "Sell a whole bag to one buyer at a price you set, or bid for someone's bag. It settles wallet to wallet in one transaction on Robinhood Chain, and the pools never see it.",
+    "Sell a whole bag to one buyer at a price you set, or bid for someone's bag. It settles wallet to wallet in one transaction on Solana, and the pools never see it.",
   /** Kerb trading: dealing outside the exchange, on the kerb. */
   origin: "Kerb trading is the old name for deals struck outside the exchange, on the street kerb.",
   /** $KERB contract address. Empty hides every CA spot on the site. */

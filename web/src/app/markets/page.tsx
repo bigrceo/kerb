@@ -79,7 +79,7 @@ export default function Markets() {
 
       <section className="card overflow-hidden">
         <div className="flex flex-wrap items-center gap-3 p-4 border-b border-line">
-          <h2 className="font-bold">Robinhood Chain coins</h2>
+          <h2 className="font-bold">Solana coins</h2>
           <div className="seg ml-auto">
             {SORTS.map(([k, l]) => (
               <button key={k} aria-pressed={sort === k} onClick={() => setSort(k)}>
@@ -103,7 +103,7 @@ export default function Markets() {
             <tbody>
               {m.isLoading && (
                 <tr>
-                  <td colSpan={6} className="text-dim">Reading Pons launches and pools on Robinhood Chain…</td>
+                  <td colSpan={6} className="text-dim">Reading pump.fun launches and pools on Solana…</td>
                 </tr>
               )}
               {rows.map((c) => {
@@ -147,7 +147,7 @@ export default function Markets() {
             {m.data?.error
               ? `Market read failed: ${m.data.error}`
               : m.data
-                ? `Read ${utc(m.data.readAt)} from Pons and Uniswap on Robinhood Chain, names and 24h from DEX Screener. SOL ${usd(m.data.ethUsd)}.`
+                ? `Read ${utc(m.data.readAt)} from pump.fun and PumpSwap on Solana, names and 24h from DEX Screener. SOL ${usd(m.data.ethUsd)}.`
                 : ""}
           </span>
           <span className="ml-auto flex gap-1">

@@ -8,7 +8,7 @@
  */
 export const MAINNET = {
   id: 4663,
-  name: "Robinhood Chain",
+  name: "Solana",
   rpc: "https://rpc.mainnet.chain.robinhood.com",
   readRpc: "https://robinhood-rpc.publicnode.com",
   explorer: "https://robinhoodchain.blockscout.com",

@@ -39,8 +39,8 @@ const MENUS: Record<"trade" | "data", { label: string; rows: Row[]; cards: Card[
   data: {
     label: "Data",
     rows: [
-      ["chart", "Markets", "Robinhood Chain coins, read on chain.", "/markets"],
-      ["drop", "Pools", "Pons curves and Uniswap v4 depth.", "/pools"],
+      ["chart", "Markets", "Solana coins, read on chain.", "/markets"],
+      ["drop", "Pools", "pump.fun curves and PumpSwap depth.", "/pools"],
       ["clock", "History", "Every fill, from the contract's events.", "/history"],
       ["book", "Docs", "How the desk settles, fees, security.", "/docs"],
     ],

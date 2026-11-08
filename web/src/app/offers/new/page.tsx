@@ -210,7 +210,7 @@ function Ticket() {
               )}
             </>
           ) : (
-            <p className="text-sm text-dim mt-2">{valid ? (c === null ? "Not a Pons coin with an SOL pool, so no comparison." : "Enter a size to compare.") : "Pick a coin."}</p>
+            <p className="text-sm text-dim mt-2">{valid ? (c === null ? "Not a pump.fun coin with an SOL pool, so no comparison." : "Enter a size to compare.") : "Pick a coin."}</p>
           )}
         </div>
         <p className="text-xs text-dim border-t border-line pt-4">

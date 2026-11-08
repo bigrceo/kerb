@@ -29,18 +29,18 @@ export default function Docs() {
           <p className="text-dim mt-3">What the desk does, what it asks you to trust, and what in this edition is real. {BRAND.origin}</p>
         </header>
         <Sec id="what" t="What this is">
-          <p>{BRAND.name} is a place to agree a price on a whole bag of a Robinhood Chain token with one other wallet. You post an ask (a bag for SOL) or a bid (SOL for a bag), public or private to one wallet. When someone takes it, tokens and SOL swap in one transaction, both legs or neither. No pool is touched, so no pool price moves.</p>
+          <p>{BRAND.name} is a place to agree a price on a whole bag of a Solana token with one other wallet. You post an ask (a bag for SOL) or a bid (SOL for a bag), public or private to one wallet. When someone takes it, tokens and SOL swap in one transaction, both legs or neither. No pool is touched, so no pool price moves.</p>
         </Sec>
         <Sec id="why" t="Why not the pool">
-          <p>On Robinhood Chain most coins live in thin pools: a Pons bonding curve, then a full-range Uniswap v4 pool once they graduate. A pool prices each trade on a curve, so a sale that is large against it fills worse as it goes, and the price it leaves behind is what everyone sees on the chart. Two numbers come out of a big sale: the average fill, which the seller loses, and the chart move, which the market sees. On the desk both are zero.</p>
+          <p>On Solana most coins live in thin pools: a pump.fun bonding curve, then a full-range PumpSwap pool once they graduate. A pool prices each trade on a curve, so a sale that is large against it fills worse as it goes, and the price it leaves behind is what everyone sees on the chart. Two numbers come out of a big sale: the average fill, which the seller loses, and the chart move, which the market sees. On the desk both are zero.</p>
         </Sec>
         <Sec id="model" t="How the sale is modelled">
           <ul className="list-disc pl-5 space-y-2">
-            <li><b>Pons bonding curve</b>, read on chain from the curve contract: its reserves, curve fee and creator tax, in Pons&apos; own constant-product formula. Exact outside the first seconds&apos; snipe tax.</li>
-            <li><b>Graduated Pons pool</b> on Uniswap v4, read on chain through the PoolManager ({V4.poolManager.slice(0, 10)}…): price and liquidity. The Pons position is full range, so its virtual reserves are exact. Only the pool fee is counted, not the Pons hook fee, so real fills are a little worse than shown.</li>
+            <li><b>pump.fun bonding curve</b>, read on chain from the curve contract: its reserves, curve fee and creator tax, in pump.fun&apos; own constant-product formula. Exact outside the first seconds&apos; snipe tax.</li>
+            <li><b>Graduated pump.fun pool</b> on PumpSwap, read on chain through the PoolManager ({V4.poolManager.slice(0, 10)}…): price and liquidity. The pump.fun position is full range, so its virtual reserves are exact. Only the pool fee is counted, not the pump.fun hook fee, so real fills are a little worse than shown.</li>
             <li><b>Any other pool</b> DEX Screener lists for the coin: constant product with half its USD value on each side. An estimate, labelled as one.</li>
           </ul>
-          <p>A sale is cut into 400 slices and each goes to the venue that pays most for it at that moment, the way an aggregator routes. The chart move is the deepest venue&apos;s price after the sale against before. Coins come from the Pons factory ({PONS.factory.slice(0, 10)}…): every SOL-paired coin that graduated, ranked by the SOL in its pool, plus the deepest curves launched in the last week.</p>
+          <p>A sale is cut into 400 slices and each goes to the venue that pays most for it at that moment, the way an aggregator routes. The chart move is the deepest venue&apos;s price after the sale against before. Coins come from the pump.fun factory ({PONS.factory.slice(0, 10)}…): every SOL-paired coin that graduated, ranked by the SOL in its pool, plus the deepest curves launched in the last week.</p>
         </Sec>
         <Sec id="offers" t="Asks, bids, private offers">
           <ul className="list-disc pl-5 space-y-2">
@@ -68,8 +68,8 @@ export default function Docs() {
         <Sec id="trust" t="Who you trust">
           <ul className="list-disc pl-5 space-y-2">
             <li><b>The contract</b>, <a className="link num" href={deskAddr(DESK)} target="_blank" rel="noreferrer">{DESK}</a> on {DESK_CHAIN.name}. Its admin can change only where fees go. It cannot touch an escrow, pause fills or change the fee.</li>
-            <li><b>Not audited.</b> It has its own Foundry tests, including fuzzing and attacks (reentrancy, tax tokens, wallets that refuse SOL), and a mainnet-fork test with a live Pons coin, but no outside audit.</li>
-            <li><b>Market data.</b> Curve and pool reserves are read on chain; names, 24h change and non-Pons pools come from DEX Screener; holders from Blockscout. When they are wrong, an estimate is wrong.</li>
+            <li><b>Not audited.</b> It has its own Foundry tests, including fuzzing and attacks (reentrancy, tax tokens, wallets that refuse SOL), and a mainnet-fork test with a live pump.fun coin, but no outside audit.</li>
+            <li><b>Market data.</b> Curve and pool reserves are read on chain; names, 24h change and non-pump.fun pools come from DEX Screener; holders from Solscan. When they are wrong, an estimate is wrong.</li>
           </ul>
         </Sec>
         <Sec id="risks" t="Risks">
@@ -80,7 +80,7 @@ export default function Docs() {
           </ul>
         </Sec>
         <Sec id="edition" t="This edition">
-          <p>{ON_TESTNET ? `The desk runs on ${DESK_CHAIN.name} (${DESK_CHAIN.id}) for now. Market data is mainnet; real Robinhood Chain coins do not exist on testnet, so fills there use a demo coin (KDEMO). The same contract goes to mainnet unchanged.` : <>The desk runs on {DESK_CHAIN.name} ({DESK_CHAIN.id}). Its source is verified, exact match, on <a className="link" href={`https://repo.sourcify.dev/${DESK_CHAIN.id}/${DESK}`}>Sourcify</a>.</>}</p>
+          <p>{ON_TESTNET ? `The desk runs on ${DESK_CHAIN.name} (${DESK_CHAIN.id}) for now. Market data is mainnet; real Solana coins do not exist on testnet, so fills there use a demo coin (KDEMO). The same contract goes to mainnet unchanged.` : <>The desk runs on {DESK_CHAIN.name} ({DESK_CHAIN.id}). Its source is verified, exact match, on <a className="link" href={`https://repo.sourcify.dev/${DESK_CHAIN.id}/${DESK}`}>Sourcify</a>.</>}</p>
           <p className="mt-3"><b>${BRAND.ticker}</b> is the desk&apos;s token. {BRAND.tokenAddress && `Address: ${BRAND.tokenAddress}.`}</p>
         </Sec>
       </article>

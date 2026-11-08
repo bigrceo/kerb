@@ -23,8 +23,8 @@ function Pools() {
         <p className="text-dim mt-1 max-w-2xl">Every venue a coin trades in, read live, and what selling into all of them at once would cost.</p>
       </div>
       <div className="card p-5"><CoinPicker value={token} onChange={setToken} /></div>
-      {q.isFetching && !c && <p className="text-dim">Reading pools on Robinhood Chain…</p>}
-      {q.data && !c && <p className="text-dim">That address is not an SOL-paired Pons coin, so there is no pool to read. You can still make an offer for it.</p>}
+      {q.isFetching && !c && <p className="text-dim">Reading pools on Solana…</p>}
+      {q.data && !c && <p className="text-dim">That address is not an SOL-paired pump.fun coin, so there is no pool to read. You can still make an offer for it.</p>}
       {c && (
         <>
           <section className="card p-5">
@@ -79,7 +79,7 @@ function Pools() {
               </tbody>
             </table>
             <p className="p-4 text-xs text-dim border-t border-line">
-              Read {q.data ? utc(q.data.readAt) : ""}. Curve: Pons&apos; own constant-product formula with its fee and creator tax. Graduated pool: full-range Uniswap v4 liquidity, pool fee only (the Pons hook fee is not counted, so real fills are slightly worse).
+              Read {q.data ? utc(q.data.readAt) : ""}. Curve: pump.fun&apos; own constant-product formula with its fee and creator tax. Graduated pool: full-range PumpSwap liquidity, pool fee only (the pump.fun hook fee is not counted, so real fills are slightly worse).
             </p>
           </section>
         </>
