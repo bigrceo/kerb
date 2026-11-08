@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Web3Provider } from "@/components/Web3Provider";
+import { SolProvider } from "@/components/SolProvider";
 import { Header } from "@/components/Header";
 import { Reveal } from "@/components/Reveal";
 import { Footer } from "@/components/Footer";
@@ -23,10 +24,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col">
         <Web3Provider>
+          <SolProvider>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <Reveal />
+          </SolProvider>
         </Web3Provider>
       </body>
     </html>

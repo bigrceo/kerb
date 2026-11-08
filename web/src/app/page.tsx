@@ -11,8 +11,8 @@ export default function Home() {
         <p style={{ animationDelay: "180ms" }} className="rise mt-4 text-xl sm:text-2xl text-dim max-w-xl">{BRAND.tagline}</p>
         <p style={{ animationDelay: "270ms" }} className="rise mt-4 text-base text-dim max-w-lg">{BRAND.pitch}</p>
         <div style={{ animationDelay: "360ms" }} className="rise mt-8 flex flex-wrap gap-3 justify-center">
-          <Link href="/markets" className="btn btn-a px-8">
-            Open the desk
+          <Link href="/deal/new" className="btn btn-a px-8">
+            Make a deal
           </Link>
           <Link href="/docs" className="btn btn-o">
             How it works

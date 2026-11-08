@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
    * build ; on lui dit explicitement que le front est le projet.
    */
   turbopack: { root: path.resolve(process.cwd()) },
+  // The EVM desk pages are gone on Solana: old links land on Make a deal.
+  async redirects() {
+    return ["offers", "positions", "wallets", "markets", "pools", "history"].map((p) => ({ source: `/${p}/:rest*`, destination: "/deal/new", permanent: false }));
+  },
 };
 
 export default nextConfig;

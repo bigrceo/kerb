@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Wordmark } from "./Logo";
-import { DESK_CHAIN, ON_TESTNET, short } from "@/lib/chain";
+import { short } from "@/lib/chain";
 import { BRAND } from "@/lib/brand";
 
 const ICON = {
@@ -22,35 +22,20 @@ type Row = [keyof typeof ICON, string, string, string];
 type Card = [string, string, string, "flat" | "bars"];
 
 /** Mega menus: rows on the left, two picture cards on the right. */
-const MENUS: Record<"trade" | "data", { label: string; rows: Row[]; cards: Card[] }> = {
+const MENUS: Record<"trade", { label: string; rows: Row[]; cards: Card[] }> = {
   trade: {
     label: "Trade",
     rows: [
-      ["list", "Offers", "Every open ask and bid on the desk.", "/offers"],
-      ["plus", "Make offer", "Sell a bag or bid for one, at your price.", "/offers/new"],
-      ["bag", "Positions", "Your offers, fills and reclaims.", "/positions"],
-      ["whale", "Wallets", "Biggest holders of any coin. Bid them privately.", "/wallets"],
+      ["plus", "Make a deal", "Sell a bag or bid for one, to one wallet, at your price.", "/deal/new"],
+      ["list", "Open a deal link", "Got a Kerb link? Check the terms and settle it.", "/deal"],
+      ["book", "How it works", "One transaction signed by both sides. No program, no custody.", "/docs"],
     ],
     cards: [
-      ["Sell off the chart", "One buyer, one transaction. The pool never sees it.", "/offers/new", "flat"],
-      ["Sale simulator", "What the same bag would get in the pools.", "/markets", "bars"],
-    ],
-  },
-  data: {
-    label: "Data",
-    rows: [
-      ["chart", "Markets", "Solana coins, read on chain.", "/markets"],
-      ["drop", "Pools", "pump.fun curves and PumpSwap depth.", "/pools"],
-      ["clock", "History", "Every fill, from the contract's events.", "/history"],
-      ["book", "Docs", "How the desk settles, fees, security.", "/docs"],
-    ],
-    cards: [
-      ["Chart impact", "How far a sale would push the price.", "/markets", "bars"],
-      ["Open contract", "Escrow goes to a buyer on your terms, or back to you.", "/docs", "flat"],
+      ["Sell off the chart", "One buyer, one transaction. The pool never sees it.", "/deal/new", "flat"],
+      ["Bid for a bag", "Name the wallet and the price you pay.", "/deal/new?side=bid", "bars"],
     ],
   },
 };
-
 const Ico = ({ k }: { k: keyof typeof ICON }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
     {ICON[k]}
@@ -86,30 +71,39 @@ const Chev = () => (
 );
 
 export function Connect() {
-  const { address, chainId, isConnected } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
-  const { switchChain } = useSwitchChain();
-  if (isConnected && chainId !== DESK_CHAIN.id)
-    return (
-      <button className="btn btn-o" onClick={() => switchChain({ chainId: DESK_CHAIN.id })}>
-        Switch to {ON_TESTNET ? "testnet" : DESK_CHAIN.name}
-      </button>
-    );
-  if (isConnected)
+  const { publicKey, wallets, select, connect, disconnect, connecting, wallet } = useWallet();
+  const [pick, setPick] = useState(false);
+  useEffect(() => {
+    if (wallet && !publicKey && !connecting) connect().catch(() => {});
+  }, [wallet, publicKey, connecting, connect]);
+  if (publicKey)
     return (
       <button className="btn btn-o num" onClick={() => disconnect()} title="Disconnect">
-        {short(address)}
+        {publicKey.toBase58().slice(0, 4)}…{publicKey.toBase58().slice(-4)}
       </button>
     );
+  const found = wallets.filter((w) => w.readyState === "Installed");
   return (
-    <button
-      className="btn btn-o"
-      disabled={isPending}
-      onClick={() => connectors[0] && connect({ connector: connectors[0], chainId: DESK_CHAIN.id })}
-    >
-      Connect wallet
-    </button>
+    <span className="relative inline-flex">
+      <button className="btn btn-o" disabled={connecting} onClick={() => (found.length === 1 ? select(found[0].adapter.name) : setPick(!pick))}>
+        {connecting ? "Connecting…" : "Connect wallet"}
+      </button>
+      {pick && (
+        <span className="absolute right-0 top-full mt-2 z-50 card p-2 min-w-48 flex flex-col">
+          {found.length ? (
+            found.map((w) => (
+              <button key={w.adapter.name} className="text-left px-3 py-2 rounded hover:bg-panel flex items-center gap-2" onClick={() => (select(w.adapter.name), setPick(false))}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={w.adapter.icon} alt="" width={18} height={18} />
+                {w.adapter.name}
+              </button>
+            ))
+          ) : (
+            <a className="px-3 py-2 link" href="https://phantom.com" target="_blank" rel="noreferrer">Install Phantom</a>
+          )}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -135,7 +129,7 @@ export function Header() {
   const hover = () => matchMedia("(hover: hover)").matches;
   // Markets and Docs have their own top links, so they do not light up the Data menu too.
   const inMenu = (k: keyof typeof MENUS) =>
-    !path.startsWith("/markets") && !path.startsWith("/docs") && MENUS[k].rows.some((r) => path.startsWith(r[3]));
+    !path.startsWith("/docs") && MENUS[k].rows.some((r) => path.startsWith(r[3]));
 
   return (
     <>
@@ -163,9 +157,6 @@ export function Header() {
                   <Chev />
                 </button>
               ))}
-              <Link href="/markets" className={path.startsWith("/markets") ? "on" : ""} onMouseEnter={() => open(null)}>
-                Markets
-              </Link>
               <Link href="/docs" className={path.startsWith("/docs") ? "on" : ""} onMouseEnter={() => open(null)}>
                 Docs
               </Link>
@@ -184,8 +175,8 @@ export function Header() {
               <span className="hidden md:inline-flex">
                 <Connect />
               </span>
-              <Link href="/offers/new" className="btn btn-a hidden sm:inline-flex">
-                Make offer
+              <Link href="/deal/new" className="btn btn-a hidden sm:inline-flex">
+                Make a deal
               </Link>
               <button className="mbtn" type="button" aria-label="Menu" aria-expanded={mobile} onClick={() => setMobile(!mobile)}>
                 <i />
@@ -228,7 +219,7 @@ export function Header() {
           ))}
           <div className="mlist" inert={!mobile}>
             <div>
-              {[...MENUS.trade.rows, ...MENUS.data.rows].map(([, t, , h]) => (
+              {MENUS.trade.rows.map(([, t, , h]) => (
                 <Link key={h} href={h}>
                   {t}
                   <span>↗</span>
