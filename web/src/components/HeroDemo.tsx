@@ -20,7 +20,7 @@ export function HeroDemo() {
   const drop = Math.min(1, -r!.chart * 2);
   const pts = Array.from({ length: 30 }, (_, k) => `${k * 10},${26 + Math.sin(k * 0.9) * 4 + (k > 19 ? (k - 19) * 6 * drop : 0)}`);
   return (
-    <div key={c.mint} className="rise mt-12 w-full max-w-3xl grid sm:grid-cols-2 gap-px bg-line text-left border border-line">
+    <div key={c.mint} className="rise mt-12 w-full max-w-3xl grid sm:grid-cols-2 gap-3 text-left">
       <div className="ticket bad">
         <div className="tk-h"><span>Pool · sell $10K of ${c.symbol}</span><span>market order</span></div>
         <svg viewBox="0 0 290 90" preserveAspectRatio="none" className="w-full h-20 block">

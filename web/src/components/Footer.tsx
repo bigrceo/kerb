@@ -19,6 +19,9 @@ export function Footer() {
         <Link href="/docs" className="hover:text-fg">
           How it works
         </Link>
+        <a href={BRAND.github} className="hover:text-fg" target="_blank" rel="noreferrer">
+          GitHub
+        </a>
         <a href={BRAND.x} className="hover:text-fg" target="_blank" rel="noreferrer">
           X
         </a>

@@ -8,6 +8,7 @@ export const BRAND = {
   domain: "kerbtrade.xyz",
   url: "https://kerbtrade.xyz",
   x: "https://x.com/kerbotc",
+  github: "https://github.com/bigrceo/kerb",
   tagline: "Trade the bag off the chart.",
   pitch:
     "Sell a whole bag to one buyer at a price you set, or bid for someone's bag. It settles wallet to wallet in one transaction on Solana, and the pools never see it.",
